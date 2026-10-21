@@ -50,15 +50,14 @@ const icone = {
   play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11.2-6.86a1 1 0 0 0 0-1.72L9.5 4.28A1 1 0 0 0 8 5.14Z"/></svg>',
   externo:
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
-  compartilhar:
-    '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>',
   imprimir:
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M7 9V3h10v6M7 18H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M7 14h10v7H7z"/></svg>',
   trofeu:
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/></svg>',
-  voltar:
-    '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M11 6l-6 6 6 6"/></svg>',
   seta: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  link: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></svg>',
+  email:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="m4 7 8 6 8-6"/></svg>',
   instagram:
     '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.5" cy="6.5" r="1.1" fill="currentColor"/></svg>',
 };
@@ -380,66 +379,48 @@ ${canonica ? `<meta property="og:url" content="${esc(canonica)}">\n` : ''}<meta 
 </head>`;
 }
 
-function topoHtml(raiz, textoWhats) {
+// isolado = página de um atleta enviada sozinha ao clube: a marca não leva para a lista dos outros atletas
+function topoHtml(raiz, textoWhats, isolado) {
+  const marca = `<img class="marca__logo" src="${raiz}assets/logo-gf.png" alt="" width="52" height="52">
+      <span class="marca__texto"><strong>G&amp;F Assessoria</strong><small>Portfólio de atletas</small></span>`;
   return `<header class="topo" data-topo>
   <div class="container topo__interno">
-    <a class="marca" href="${raiz}" aria-label="${esc(config.nome)} — início do portfólio">
-      <img class="marca__logo" src="${raiz}assets/logo-gf.png" alt="" width="52" height="52">
-      <span class="marca__texto"><strong>G&amp;F Assessoria</strong><small>Portfólio de atletas</small></span>
-    </a>
-    <nav class="topo__nav" aria-label="Principal">
-      <a href="${raiz}#atletas">Atletas</a>
-      <a href="${raiz}#para-clubes">Para clubes</a>
-      <a href="${raiz}#a-gf">A G&amp;F</a>
-      <a href="#contato">Contato</a>
-    </nav>
-    <a class="botao botao--ouro botao--pequeno" href="${esc(linkWhatsApp(textoWhats))}" target="_blank" rel="noopener">${icone.whatsapp}<span>WhatsApp</span></a>
+    ${isolado ? `<div class="marca">${marca}</div>` : `<a class="marca" href="${raiz}" aria-label="${esc(config.nome)} — portfólio de atletas">${marca}</a>`}
+    <a class="botao botao--ouro botao--pequeno" href="${esc(linkWhatsApp(textoWhats))}" target="_blank" rel="noopener">${icone.whatsapp}<span>Falar com a G&amp;F</span></a>
   </div>
 </header>`;
 }
 
-function rodapeHtml(raiz) {
-  const whatsGeral = linkWhatsApp('Olá, G&F! Vi o portfólio de atletas e gostaria de mais informações.');
+function rodapeHtml(raiz, textoWhats) {
   return `<footer class="rodape" id="contato">
-  <div class="container rodape__grade">
+  <div class="container rodape__interno">
     <div class="rodape__marca">
-      <img src="${raiz}assets/logo-gf.png" alt="G&amp;F Assessoria" width="76" height="76" loading="lazy">
-      <p class="rodape__frase">O talento abre portas.<br><em>A gestão correta sustenta a trajetória.</em></p>
+      <img src="${raiz}assets/logo-gf.png" alt="" width="44" height="44" loading="lazy">
+      <span><strong>G&amp;F Assessoria</strong><small>Gestão de atletas · Intermediário CBF</small></span>
     </div>
-    <div>
-      <h2 class="rodape__titulo">Contato para clubes</h2>
-      <ul class="rodape__lista">
-        <li><a href="${esc(whatsGeral)}" target="_blank" rel="noopener"><span>WhatsApp comercial</span>${esc(config.whatsapp_exibicao)}</a></li>
-        <li><a href="tel:${esc(config.telefone)}"><span>Telefone</span>${esc(config.telefone_exibicao)}</a></li>
-        <li><a href="mailto:${esc(config.email)}"><span>E-mail</span>${esc(config.email)}</a></li>
-      </ul>
-    </div>
-    <div>
-      <h2 class="rodape__titulo">G&amp;F Assessoria</h2>
-      <ul class="rodape__lista">
-        <li><a href="${esc(linkInstagram(config.instagram))}" target="_blank" rel="noopener"><span>Instagram</span>@${esc(config.instagram)}</a></li>
-        <li><a href="${esc(config.site_institucional)}" target="_blank" rel="noopener"><span>Site institucional</span>${esc(config.site_institucional.replace(/^https?:\/\//, ''))}</a></li>
-        <li><a href="${esc(config.politica_privacidade)}" target="_blank" rel="noopener"><span>Privacidade</span>Política de privacidade</a></li>
-      </ul>
-    </div>
+    <ul class="rodape__contatos">
+      <li><a href="${esc(linkWhatsApp(textoWhats))}" target="_blank" rel="noopener">${icone.whatsapp}<span>${esc(config.whatsapp_exibicao)}</span></a></li>
+      <li><a href="mailto:${esc(config.email)}">${icone.email}<span>${esc(config.email)}</span></a></li>
+    </ul>
   </div>
   <div class="container rodape__base">
-    <span>© <span data-ano>${HOJE.getFullYear()}</span> G&amp;F Assessoria · Gestão de atletas · Intermediário registrado na CBF</span>
+    <span>© <span data-ano>${HOJE.getFullYear()}</span> G&amp;F Assessoria</span>
     <span>${esc(config.aviso_rodape || '')}</span>
   </div>
 </footer>
 <div class="toast" role="status" aria-live="polite" data-toast></div>`;
 }
 
-function pagina({ titulo, descricao, caminho, raiz, ogImagem = 'assets/og-gf.jpg', noindex = false, tipo, classe = '', textoWhats, conteudo, versoes }) {
+function pagina({ titulo, descricao, caminho, raiz, ogImagem = 'assets/og-gf.jpg', noindex = false, tipo, classe = '', textoWhats, isolado = false, conteudo, versoes }) {
+  const whats = textoWhats || 'Olá, G&F! Vi o portfólio de atletas e gostaria de mais informações.';
   return `${cabecalhoHtml({ titulo, descricao, caminho, raiz, ogImagem, noindex, tipo, versoes })}
 <body class="${classe}">
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
-${topoHtml(raiz, textoWhats || 'Olá, G&F! Vi o portfólio de atletas e gostaria de mais informações.')}
+${topoHtml(raiz, whats, isolado)}
 <main id="conteudo">
 ${conteudo}
 </main>
-${rodapeHtml(raiz)}
+${rodapeHtml(raiz, whats)}
 </body>
 </html>
 `;
@@ -455,6 +436,21 @@ function linhaMeta(atleta) {
 
 function seloCategoria(atleta) {
   return [atleta.categoria, atleta.categoriaIdade].filter(Boolean).map(esc).join(' · ');
+}
+
+// Envio individual do perfil: copia o link ou abre o WhatsApp com mensagem pronta para o clube
+function textoEnvio(atleta) {
+  const artigo = { feminino: 'da atleta', masculino: 'do atleta' }[atleta.catSlug] || 'de';
+  const pos = [atleta.posicao, atleta.categoriaIdade].filter(Boolean).join(', ');
+  return `Olá! Segue o perfil ${artigo} ${atleta.nome}${pos ? ` (${pos})` : ''}, apresentado pela G&F Assessoria:\n${absoluta(`atletas/${atleta.slug}/`)}`;
+}
+
+function botoesEnvio(atleta, comTexto = false) {
+  const rotulo = (t) => (comTexto ? `<span>${t}</span>` : `<span class="sr-only">${t}</span>`);
+  return `<div class="envio${comTexto ? ' envio--texto' : ''}">
+          <button type="button" class="envio__botao" data-copiar-link="${esc(absoluta(`atletas/${atleta.slug}/`))}" title="Copiar link do perfil">${icone.link}${rotulo('Copiar link')}</button>
+          <a class="envio__botao" href="https://wa.me/?text=${encodeURIComponent(textoEnvio(atleta))}" target="_blank" rel="noopener" title="Enviar perfil pelo WhatsApp">${icone.whatsapp}${rotulo('Enviar pelo WhatsApp')}</a>
+        </div>`;
 }
 
 function imagemAtleta(atleta, imagens, tamanho, raiz, extra = '') {
@@ -505,55 +501,28 @@ function paginaInicial(atletas, versoes) {
           </div>
           <div class="cartao__corpo">
             <p class="cartao__posicao">${esc([a.posicao, a.posicaoSecundaria].filter(Boolean).join(' · '))}</p>
-            <h3 class="cartao__nome">${esc(a.nome)}</h3>
+            <h2 class="cartao__nome">${esc(a.nome)}</h2>
             <p class="cartao__meta">${linhaMeta(a)}</p>
-            <span class="cartao__ver">Ver perfil ${icone.seta}</span>
           </div>
         </a>
+        <div class="cartao__acoes">
+          <a class="cartao__ver" href="atletas/${a.slug}/">Ver perfil ${icone.seta}</a>
+          ${botoesEnvio(a)}
+        </div>
       </article>`;
     })
     .join('\n      ');
 
-  const fundadores = (config.fundadores || [])
-    .map((f) => `<li><strong>${esc(f.nome)}</strong><span>${esc(f.funcao)}</span></li>`)
-    .join('');
-
-  const whats = linkWhatsApp('Olá, G&F! Vi o portfólio de atletas e gostaria de mais informações.');
   const conteudo = `
-<section class="hero">
-  <div class="container hero__grade">
-    <div class="hero__texto">
-      <p class="sobretitulo">G&amp;F Assessoria · ${esc(config.titulo)}</p>
-      <h1 class="hero__titulo">Talento precisa de oportunidade. <em>Carreira precisa de direção.</em></h1>
-      <p class="hero__lead">Atletas do futebol feminino e masculino, da base ao profissional. Em cada perfil, o vídeo com os melhores lances, a ficha técnica e a trajetória, organizados para a avaliação do seu clube.</p>
-      <div class="hero__acoes">
-        <a class="botao botao--ouro" href="#atletas">Conhecer os atletas ${icone.seta}</a>
-        <a class="botao botao--contorno" href="${esc(whats)}" target="_blank" rel="noopener">${icone.whatsapp}<span>Falar com a G&amp;F</span></a>
-      </div>
-    </div>
-    <div class="hero__simbolo" aria-hidden="true">
-      <img src="assets/logo-gf.png" alt="" width="420" height="420">
-    </div>
-  </div>
+<section class="abertura">
   <div class="container">
-    <dl class="hero__numeros">
-      <div><dt>Atletas no portfólio</dt><dd>${visiveis.length}</dd></div>
-      <div><dt>Modalidades</dt><dd>Feminino e masculino</dd></div>
-      <div><dt>Da base</dt><dd>ao profissional</dd></div>
-      <div><dt>Intermediação</dt><dd>Registrada na CBF</dd></div>
-    </dl>
+    <h1 class="abertura__titulo">Portfólio de atletas</h1>
+    <p class="abertura__texto">Vídeo com os melhores lances, ficha técnica e trajetória de cada atleta.</p>
   </div>
 </section>
 
-<section class="secao" id="atletas" aria-labelledby="titulo-atletas">
+<section class="secao secao--lista" id="atletas" aria-label="Atletas">
   <div class="container">
-    <div class="secao__cabeca">
-      <div>
-        <p class="sobretitulo">Portfólio</p>
-        <h2 id="titulo-atletas" class="secao__titulo">Atletas</h2>
-      </div>
-      <p class="secao__intro">Selecione um atleta para ver o vídeo com os melhores lances, os dados técnicos e a história completa.</p>
-    </div>
     <div class="filtros">
       ${filtroCategoria}
       ${filtroPosicao}
@@ -567,42 +536,6 @@ function paginaInicial(atletas, versoes) {
       ${cartoes || '<p class="vazio">Os perfis estão sendo atualizados. Fale com a G&amp;F para conhecer os atletas disponíveis.</p>'}
     </div>
     <p class="vazio" data-vazio hidden>Nenhum atleta encontrado com esses filtros.</p>
-  </div>
-</section>
-
-<section class="secao secao--papel" id="para-clubes" aria-labelledby="titulo-clubes">
-  <div class="container">
-    <div class="secao__cabeca">
-      <div>
-        <p class="sobretitulo">Para clubes</p>
-        <h2 id="titulo-clubes" class="secao__titulo">Avaliação com informação organizada</h2>
-      </div>
-      <p class="secao__intro">Cada perfil é mantido pela equipe da G&amp;F. Quando um atleta despertar interesse, conduzimos o contato com transparência e responsabilidade.</p>
-    </div>
-    <ol class="passos">
-      <li><span class="passos__num">01</span><h3>Assista e avalie</h3><p>Vídeo com os melhores lances, ficha técnica, trajetória e conquistas em um só lugar, acessível do celular ou do computador.</p></li>
-      <li><span class="passos__num">02</span><h3>Solicite mais material</h3><p>Jogos completos, documentação e informações contratuais são enviados diretamente pela G&amp;F aos clubes interessados.</p></li>
-      <li><span class="passos__num">03</span><h3>Negocie com segurança</h3><p>Intermediação conduzida por intermediário registrado na CBF, com acompanhamento jurídico e participação da família.</p></li>
-    </ol>
-    <div class="faixa-contato">
-      <p>Interessou-se por algum perfil?<br><strong>Fale diretamente com a G&amp;F.</strong></p>
-      <a class="botao botao--escuro" href="${esc(whats)}" target="_blank" rel="noopener">${icone.whatsapp}<span>${esc(config.whatsapp_exibicao)}</span></a>
-    </div>
-  </div>
-</section>
-
-<section class="secao" id="a-gf" aria-labelledby="titulo-gf">
-  <div class="container sobre">
-    <figure class="sobre__foto">
-      <img src="assets/fundadores.webp" alt="Júlia Ferreira de Faria e Guilherme Martins Ribeiro Hesse, fundadores da G&amp;F Assessoria" width="1024" height="1280" loading="lazy">
-    </figure>
-    <div class="sobre__texto">
-      <p class="sobretitulo">A G&amp;F</p>
-      <h2 id="titulo-gf" class="secao__titulo">Gestão de carreira com seriedade, proximidade e estratégia</h2>
-      <p>A G&amp;F Assessoria nasceu para cuidar de sonhos que também pertencem às famílias. Acompanhamos atletas em formação e profissionais com planejamento de carreira, organização documental, imagem profissional e suporte jurídico, sempre com ética e transparência.</p>
-      <ul class="fundadores">${fundadores}</ul>
-      <a class="link-seta" href="${esc(config.site_institucional)}" target="_blank" rel="noopener">Conheça a G&amp;F ${icone.externo}</a>
-    </div>
   </div>
 </section>`;
 
@@ -741,7 +674,6 @@ ${a.exemplo ? '<div class="faixa-exemplo">Perfil de exemplo: substitua pelos dad
       ${imagemAtleta(a, imagens, 'grande', raiz, 'width="1080" height="1350" fetchpriority="high"')}
     </figure>
     <div class="perfil__info">
-      <a class="voltar" href="${raiz}#atletas">${icone.voltar}<span>Todos os atletas</span></a>
       ${seloCategoria(a) ? `<p class="sobretitulo">${seloCategoria(a)}</p>` : ''}
       <h1 class="perfil__nome">${esc(a.nome)}</h1>
       ${posicoes ? `<p class="perfil__posicao">${esc(posicoes)}</p>` : ''}
@@ -759,7 +691,7 @@ ${a.exemplo ? '<div class="faixa-exemplo">Perfil de exemplo: substitua pelos dad
         <a class="botao botao--contorno" href="${esc(whats)}" target="_blank" rel="noopener">${icone.whatsapp}<span>Falar com a G&amp;F</span></a>
       </div>
       <div class="perfil__utilidades">
-        <button type="button" class="botao-texto" data-compartilhar data-titulo="${esc(`${a.nome} · ${config.nome}`)}">${icone.compartilhar}<span>Compartilhar perfil</span></button>
+        ${botoesEnvio(a, true)}
         <button type="button" class="botao-texto" data-imprimir>${icone.imprimir}<span>Baixar ficha em PDF</span></button>
         ${a.instagram ? `<a class="botao-texto" href="${esc(linkInstagram(a.instagram))}" target="_blank" rel="noopener">${icone.instagram}<span>Instagram</span></a>` : ''}
       </div>
@@ -795,9 +727,9 @@ ${secaoVideo}
 <section class="secao contato-atleta" aria-labelledby="titulo-contato-atleta">
   <div class="container contato-atleta__grade">
     <div>
-      <p class="sobretitulo">Interesse no atleta</p>
-      <h2 id="titulo-contato-atleta" class="secao__titulo">Fale com a G&amp;F sobre ${esc(primeiroNome)}</h2>
-      <p>Enviamos jogos completos, documentação e informações contratuais aos clubes interessados. Intermediação por intermediário registrado na CBF.</p>
+      <p class="sobretitulo">Contato</p>
+      <h2 id="titulo-contato-atleta" class="secao__titulo">Interesse em ${esc(primeiroNome)}?</h2>
+      <p>Fale com a G&amp;F Assessoria para receber jogos completos, documentação e informações contratuais.</p>
     </div>
     <div class="contato-atleta__acoes">
       <a class="botao botao--ouro" href="${esc(whats)}" target="_blank" rel="noopener">${icone.whatsapp}<span>WhatsApp ${esc(config.whatsapp_exibicao)}</span></a>
@@ -827,6 +759,7 @@ ${secaoVideo}
     tipo: 'profile',
     classe: 'pagina-atleta',
     textoWhats,
+    isolado: true,
     conteudo,
     versoes,
   });
@@ -840,7 +773,7 @@ function pagina404(versoes) {
     <p class="sobretitulo">Erro 404</p>
     <h1 class="secao__titulo">Página não encontrada</h1>
     <p>O endereço pode ter mudado ou o perfil não está mais disponível.</p>
-    <a class="botao botao--ouro" href="${BASE}#atletas">Ver todos os atletas</a>
+    <a class="botao botao--ouro" href="${BASE}">Ir para o portfólio</a>
   </div>
 </section>`;
   return pagina({ titulo: `Página não encontrada · ${config.nome}`, descricao: config.descricao, caminho: '404.html', raiz: BASE, noindex: true, conteudo, versoes });

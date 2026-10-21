@@ -88,23 +88,15 @@
     temporizador = setTimeout(() => toast.classList.remove('toast--visivel'), 2600);
   };
 
-  // Compartilhar: menu nativo no celular, cópia do link no computador
-  document.querySelectorAll('[data-compartilhar]').forEach((botao) => {
+  // Copiar o link isolado do perfil, para enviar a um clube
+  document.querySelectorAll('[data-copiar-link]').forEach((botao) => {
     botao.addEventListener('click', async () => {
-      const dados = { title: botao.dataset.titulo || document.title, url: location.href.split('#')[0] };
-      if (navigator.share && matchMedia('(pointer: coarse)').matches) {
-        try {
-          await navigator.share(dados);
-          return;
-        } catch (erro) {
-          if (erro.name === 'AbortError') return;
-        }
-      }
+      const url = new URL(botao.dataset.copiarLink, location.href).href;
       try {
-        await navigator.clipboard.writeText(dados.url);
+        await navigator.clipboard.writeText(url);
         avisar('Link do perfil copiado');
       } catch {
-        prompt('Copie o link do perfil:', dados.url);
+        prompt('Copie o link do perfil:', url);
       }
     });
   });
@@ -114,7 +106,7 @@
 
   // Entrada suave dos blocos ao rolar
   if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const alvos = document.querySelectorAll('.cartao, .passos li, .sobre, .detalhes > *, .video--principal, .contato-atleta__grade');
+    const alvos = document.querySelectorAll('.cartao, .detalhes > *, .video--principal, .contato-atleta__grade');
     const observador = new IntersectionObserver(
       (entradas) =>
         entradas.forEach((entrada) => {

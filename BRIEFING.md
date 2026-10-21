@@ -2,58 +2,55 @@
 
 Documento de referência do site, para orientar qualquer evolução futura. Pode ser usado como prompt para pedir alterações a uma IA ou a um desenvolvedor.
 
-## Objetivo
+## O que é (e o que não é)
 
-Ter um link profissional para cada atleta assessorado pela G&F Assessoria, enviado a clubes (diretores, coordenadores, analistas de desempenho e scouts) quando a G&F oferece o atleta. Com esse link, o clube avalia o atleta em poucos minutos, de preferência pelo celular, e entra em contato com a G&F.
+- **É** o portfólio de atletas da G&F Assessoria: uma vitrine das atletas e dos atletas, usada para oferecê-los a clubes.
+- **Não é** um site de apresentação da empresa. Não há história da G&F, slogans, foto dos sócios nem seções institucionais. A G&F aparece só como marca (logo e cores) e como contato.
 
-Referência de conteúdo: currículo de atleta em página única (ex.: curriculoleticiaxing.wordpress.com). Ou seja, nome, foto, história curta, ficha técnica, highlights e contato. Aqui isso vira um portfólio da agência, com padrão visual e técnico superior.
+## Função principal: perfil isolado
 
-## Quem é a G&F
+O uso mais importante é enviar **o perfil de um único atleta** a um clube:
 
-- **G&F Assessoria · Gestão de atletas** (Instagram @assessoriagf_, site gfcarreiras.online).
-- Gestão de carreira de atletas de futebol, **feminino e masculino, da base ao profissional**.
-- Intermediário registrado na CBF.
-- Sócios: Júlia Ferreira de Faria (relacionamento e família) e Guilherme Martins Ribeiro Hesse (advogado e intermediário CBF).
-- Valores: seriedade, proximidade e estratégia. Também ética, transparência e participação da família.
-- Slogans: "Talento precisa de oportunidade. Carreira precisa de direção." / "O talento abre portas. A gestão correta sustenta a trajetória."
+- Cada atleta tem um endereço próprio (`portfoliogf.com.br/atletas/<nome>/`).
+- O clube que recebe o link cai direto no perfil e lê todas as informações daquele atleta.
+- A página do perfil **não tem** menu, link "voltar" nem qualquer link para a lista ou para outros atletas.
+- Na lista, cada cartão tem "Copiar link" e "Enviar pelo WhatsApp" (mensagem pronta para o clube). Os mesmos botões aparecem dentro do perfil.
+- Prévia do link no WhatsApp: foto do atleta + logo G&F.
+- Atletas podem ficar fora da lista (`listar: não`), acessíveis apenas pelo link direto.
 
-## Identidade visual
-
-- Paleta do site institucional: preto `#070707`, dourado `#d3ad38` (claro `#f0d47a`, escuro `#9d791d`), prata `#c9c9c9` e papel `#f3f1eb`.
-- Logo: monograma "GF" prateado em serifa, com um traço dourado.
-- Tipografia: títulos em serifa elegante (Cormorant Garamond), textos e rótulos em Inter, com rótulos em caixa-alta espaçada.
-- Tom: premium, sóbrio e confiável, como uma agência de gestão de carreira, não um site de torcida.
+Referência de conteúdo: currículo de atleta em página única (ex.: curriculoleticiaxing.wordpress.com). Ou seja, nome, foto, história curta, ficha técnica, highlights e contato.
 
 ## Páginas
 
-1. **Início:**
-   - abertura com o slogan e os números do portfólio;
-   - grade de atletas com filtros por modalidade (feminino/masculino), por posição (gol, defesa, meio-campo, ataque) e busca;
-   - seção "Para clubes", explicando como funciona a avaliação e a intermediação;
-   - seção "A G&F", com foto e nome dos sócios;
-   - contatos.
-2. **Página da atleta** (`/atletas/<nome>/`), nesta ordem:
+1. **Portfólio (página inicial):** título "Portfólio de atletas", filtros (feminino/masculino, posição, busca) e grade de cartões. Cada cartão traz foto, posição, nome, idade, clube, "Ver perfil", "Copiar link" e "WhatsApp".
+2. **Perfil do atleta**, nesta ordem:
    - foto grande;
    - nome, posição, idade, altura, peso, pé dominante, clube e situação contratual;
-   - botões "Assistir aos melhores lances", "Falar com a G&F" (WhatsApp com mensagem pronta e link do perfil), "Compartilhar" e "Baixar ficha em PDF";
-   - vídeo do YouTube embutido, que só carrega ao clicar, com link para abrir no YouTube e vídeos extras opcionais;
+   - "Assistir aos melhores lances" e "Falar com a G&F";
+   - "Copiar link", "Enviar pelo WhatsApp" e "Baixar ficha em PDF";
+   - vídeo do YouTube embutido e vídeos extras;
    - ficha técnica e trajetória;
    - história, números e conquistas;
-   - chamada final de contato.
-3. **Ficha em PDF:** versão de impressão em uma página A4, com logo, dados, história, link do vídeo e contatos da G&F.
-4. **Prévia de link:** cada atleta tem uma imagem de compartilhamento própria (logo G&F + foto) para WhatsApp e redes sociais.
+   - contato ("Interesse em <nome>?").
+3. **Ficha em PDF:** uma página A4 com logo, dados, história, link do vídeo e contato.
+
+## Marca
+
+- G&F Assessoria · Gestão de atletas · Intermediário CBF. Futebol feminino e masculino, da base ao profissional.
+- Paleta: preto `#070707`, dourado `#d3ad38` (claro `#f0d47a`, escuro `#9d791d`), prata `#c9c9c9` e papel `#f3f1eb`.
+- Logo: monograma "GF" prateado em serifa, com um traço dourado.
+- Tipografia: Cormorant Garamond (nomes e títulos) e Inter (textos e rótulos em caixa-alta espaçada).
+- Tom: sóbrio e profissional. O protagonista é o atleta.
+- Contato: WhatsApp +55 (31) 99888-6452 · contatoassessoriagf@outlook.com.
 
 ## Requisitos técnicos
 
-- Site estático hospedado gratuitamente no GitHub Pages, com domínio próprio (`portifoliogf.com.br`).
-- Conteúdo em arquivos simples: uma pasta por atleta, com `ficha.md` (dados + história) e `foto.jpg`. Dá para editar pelo navegador no GitHub, sem programar.
-- Publicação automática (GitHub Actions) a cada alteração.
-- Fotos otimizadas automaticamente: WebP em dois tamanhos e imagem de prévia 1200×630.
-- Celular em primeiro lugar, acessível e rápido.
-- Idade calculada automaticamente a partir da data de nascimento.
-- Perfis podem ficar ocultos da lista (link direto) ou fora do ar, sem apagar dados.
+- Site estático no GitHub Pages, com domínio `portfoliogf.com.br`. O `portifoliogf.com.br` redireciona para ele.
+- Uma pasta por atleta em `atletas/`, com `ficha.md` (dados + história) e `foto.jpg`. Dá para editar pelo navegador no GitHub.
+- Fotos otimizadas automaticamente (WebP) e imagem de prévia 1200×630 por atleta.
+- Celular em primeiro lugar, acessível e rápido. Idade calculada automaticamente.
 
 ## Cuidados
 
 - Dados e imagens só com autorização do atleta e, para menores, dos responsáveis (LGPD art. 14 / ECA).
-- Perfis de exemplo e perfis ocultos não são indexados pelo Google.
+- Perfis de exemplo e perfis fora da lista não são indexados pelo Google.
