@@ -1,0 +1,19 @@
+{
+  "nome": "G&F Assessoria",
+  "titulo": "Portfólio de Atletas",
+  "descricao": "Portfólio de atletas da G&F Assessoria: vídeos com os melhores lances, ficha técnica e trajetória de atletas do futebol feminino e masculino, da base ao profissional.",
+  "url": "https://guilhermehesse.github.io/portfolio-gf",
+  "whatsapp": "5531998886452",
+  "whatsapp_exibicao": "+55 (31) 99888-6452",
+  "telefone": "+5537999254677",
+  "telefone_exibicao": "+55 (37) 99925-4677",
+  "email": "contatoassessoriagf@outlook.com",
+  "instagram": "assessoriagf_",
+  "site_institucional": "https://gfcarreiras.online",
+  "politica_privacidade": "https://gfcarreiras.online/privacidade.html",
+  "fundadores": [
+    { "nome": "Júlia Ferreira de Faria", "funcao": "Co-fundadora · Relacionamento e família" },
+    { "nome": "Guilherme Martins Ribeiro Hesse", "funcao": "Co-fundador · Advogado e Intermediário CBF" }
+  ],
+  "aviso_rodape": "Dados e imagens publicados com autorização dos atletas e, no caso de menores de idade, de seus responsáveis legais."
+}

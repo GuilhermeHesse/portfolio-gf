@@ -1,0 +1,18 @@
+{
+  "name": "gf-portfolio-atletas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portfólio de atletas da G&F Assessoria — site estático gerado a partir das fichas em atletas/.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "servidor": "node scripts/servidor.mjs",
+    "dev": "node scripts/build.mjs && node scripts/servidor.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "sharp": "^0.35.5"
+  }
+}
