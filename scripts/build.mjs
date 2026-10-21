@@ -1,10 +1,15 @@
-// Gera o site estático em dist/ a partir de site.config.json e das fichas em atletas/<pasta>/ficha.md.
+// Gera o site estático em dist/ a partir de site.config.json e das fichas em atletas/.
+// Cada atleta é um arquivo atletas/<endereço>.md (editado pelo painel Pages CMS ou à mão),
+// com as fotos em fotos/. O formato antigo atletas/<pasta>/ficha.md continua aceito.
+// Páginas em português (raiz), inglês (/en/) e espanhol (/es/).
 // Uso: npm run build
 import { readFile, writeFile, mkdir, readdir, rm, cp, copyFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import YAML from 'yaml';
+import { IDIOMAS, UI, tradutor } from './idiomas.mjs';
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = path.join(RAIZ, 'dist');
@@ -38,10 +43,15 @@ const config = JSON.parse(await readFile(path.join(RAIZ, 'site.config.json'), 'u
 config.url = (config.url || '').replace(/\/+$/, '');
 const BASE = config.url ? new URL(config.url + '/').pathname : '/';
 const absoluta = (caminho) => (config.url ? `${config.url}/${caminho}` : caminho);
+const prefixo = (idioma) => (idioma === 'pt' ? '' : `${idioma}/`);
 
 const linkWhatsApp = (texto) => `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(texto)}`;
 const linkInstagram = (usuario) =>
   /^https?:\/\//.test(usuario) ? usuario : `https://instagram.com/${usuario.replace(/^@/, '')}`;
+
+// Cliques registrados no contador de visitas (Umami): aparecem como eventos por atleta
+const evento = (nome, atleta, idioma) =>
+  ` data-umami-event="${esc(nome)}"${atleta ? ` data-umami-event-atleta="${esc(atleta.nome)}"` : ''} data-umami-event-idioma="${idioma}"`;
 
 // Ícones em linha (stroke = currentColor)
 const icone = {
@@ -60,46 +70,69 @@ const icone = {
     '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="m4 7 8 6 8-6"/></svg>',
   instagram:
     '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.5" cy="6.5" r="1.1" fill="currentColor"/></svg>',
+  fechar: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></svg>',
+  anterior: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m15 5-7 7 7 7"/></svg>',
+  proxima: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7"/></svg>',
 };
 
 // ---------------------------------------------------------------- leitura das fichas
 
-// Lê o bloco de dados entre "---" (campo: valor, listas com "- item") e o texto da história abaixo dele.
-function lerFicha(texto, arquivo) {
+// Separa o bloco de dados (entre as linhas "---") do texto da história que vem depois
+function separarFicha(texto, arquivo) {
   texto = texto.replace(/^﻿/, '').replace(/\r\n?/g, '\n');
-  const m = texto.match(/^---[ \t]*\n([\s\S]*?)\n---[ \t]*(?:\n([\s\S]*))?$/);
+  const m = texto.match(/^---[ \t]*\n((?:[\s\S]*?\n)?)---[ \t]*(?:\n([\s\S]*))?$/);
   if (!m) throw new Error(`${arquivo}: a ficha precisa começar com uma linha "---" e ter outra linha "---" fechando os dados.`);
+  let dados;
+  try {
+    dados = YAML.parse(m[1]) || {};
+  } catch {
+    // Fichas escritas à mão com caracteres que o YAML não aceita (ex.: @usuario): leitura simples
+    dados = lerDadosSimples(m[1], arquivo);
+  }
+  return { dados, corpo: (m[2] || '').trim() };
+}
+
+// Formato simples "campo: valor" e listas "- item", usado como reserva
+function lerDadosSimples(bloco, arquivo) {
   const dados = {};
   let listaAtual = null;
-  m[1].split('\n').forEach((linha, i) => {
+  bloco.split('\n').forEach((linha, i) => {
     if (linha.trim().startsWith('#')) return;
     const util = linha.replace(/\s+#\s.*$/, '');
     if (!util.trim()) return;
     const item = util.match(/^\s*-\s+(.*)$/);
     if (item) {
-      if (!listaAtual) {
-        throw new Error(`${arquivo}, linha ${i + 2}: item "- ..." sem um campo de lista acima (ex.: "trajetoria:").`);
-      }
+      if (!listaAtual) throw new Error(`${arquivo}, linha ${i + 2}: item "- ..." sem um campo de lista acima (ex.: "trajetoria:").`);
       dados[listaAtual].push(tirarAspas(item[1].trim()));
       return;
     }
     const par = util.match(/^([A-Za-z_][\w]*)\s*:\s*(.*)$/);
     if (!par) throw new Error(`${arquivo}, linha ${i + 2}: não entendi "${linha.trim()}". Use o formato  campo: valor`);
-    const chave = par[1].toLowerCase();
     const valor = par[2].trim();
-    if (valor === '') {
-      dados[chave] = [];
-      listaAtual = chave;
-    } else {
-      dados[chave] = tirarAspas(valor);
-      listaAtual = null;
-    }
+    listaAtual = valor === '' ? par[1].toLowerCase() : null;
+    dados[par[1].toLowerCase()] = valor === '' ? [] : tirarAspas(valor);
   });
-  return { dados, corpo: (m[2] || '').trim() };
+  return dados;
 }
 
-function tirarAspas(v) {
-  return /^(["']).*\1$/.test(v) ? v.slice(1, -1) : v;
+const tirarAspas = (v) => (/^(["']).*\1$/.test(v) ? v.slice(1, -1) : v);
+
+// Valores podem vir do painel (números, booleanos, listas de objetos) ou escritos à mão (texto)
+const texto = (v) => {
+  if (v == null || typeof v === 'object') return v instanceof Date ? v.toISOString().slice(0, 10) : '';
+  return String(v).trim();
+};
+const verdadeiro = (v) => v === true || /^(sim|s|true|yes|1)$/i.test(texto(v));
+const falso = (v) => v === false || /^(n[aã]o|n|false|no|0)$/i.test(texto(v));
+const lista = (v) => (Array.isArray(v) ? v.filter((x) => x != null && x !== '') : texto(v) ? [texto(v)] : []);
+const partes = (item) => String(item).split('|').map((p) => p.trim());
+
+// Itens de lista: objeto (painel) ou "A | B | C" (escrito à mão)
+function itens(valor, campos, deTexto) {
+  return lista(valor).map((item) => {
+    if (typeof item === 'object') return Object.fromEntries(Object.entries(item).map(([k, v]) => [k, texto(v)]));
+    return deTexto(partes(item));
+  }).filter((obj) => campos.some((c) => obj[c]));
 }
 
 // Markdown simples: parágrafos, **negrito**, *itálico*, subtítulos "## "
@@ -110,7 +143,7 @@ function textoParaHtml(corpo) {
     .map((bloco) => bloco.trim())
     .filter(Boolean)
     .map((bloco) => {
-      let html = esc(bloco)
+      const html = esc(bloco)
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g, '$1<em>$2</em>')
         .replace(/\n/g, '<br>');
@@ -123,15 +156,16 @@ function textoParaHtml(corpo) {
 function lerData(valor, arquivo) {
   if (!valor) return null;
   let a, m, d;
-  let r = valor.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  let r = valor.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
   if (r) [, a, m, d] = r;
   else if ((r = valor.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/))) [, d, m, a] = r;
   else {
     aviso(`${arquivo}: data de nascimento "${valor}" não reconhecida. Use DD/MM/AAAA.`);
     return null;
   }
-  const iso = `${a}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-  return { iso, br: `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${a}`, ano: Number(a), mes: Number(m), dia: Number(d) };
+  const dd = String(d).padStart(2, '0');
+  const mm = String(m).padStart(2, '0');
+  return { iso: `${a}-${mm}-${dd}`, br: `${dd}/${mm}/${a}`, ano: Number(a), mes: Number(m), dia: Number(d) };
 }
 
 function idadeEm(data) {
@@ -140,6 +174,13 @@ function idadeEm(data) {
   const mes = HOJE.getMonth() + 1;
   if (mes < data.mes || (mes === data.mes && HOJE.getDate() < data.dia)) idade--;
   return idade;
+}
+
+function formatarData(data, idioma) {
+  if (idioma !== 'en') return data.br;
+  return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(
+    Date.UTC(data.ano, data.mes - 1, data.dia),
+  );
 }
 
 function idYoutube(url) {
@@ -162,7 +203,7 @@ function formatarMedida(valor, unidade) {
   return v;
 }
 
-const GRUPOS = { gol: 'Gol', defesa: 'Defesa', meio: 'Meio-campo', ataque: 'Ataque', outros: 'Outras' };
+const GRUPOS = ['gol', 'defesa', 'meio', 'ataque', 'outros'];
 function grupoPosicao(posicao) {
   const s = semAcento(posicao).toLowerCase();
   if (/goleir/.test(s)) return 'gol';
@@ -172,35 +213,43 @@ function grupoPosicao(posicao) {
   return 'outros';
 }
 
-// "A | B | C" → ['A','B','C']
-const partes = (item) => item.split('|').map((p) => p.trim());
-
 const EXT_IMAGEM = /\.(jpe?g|png|webp|avif)$/i;
 
-async function lerAtletas() {
-  if (!existsSync(PASTA_ATLETAS)) return [];
-  const pastas = (await readdir(PASTA_ATLETAS, { withFileTypes: true }))
-    .filter((p) => p.isDirectory() && !p.name.startsWith('_') && !p.name.startsWith('.'))
-    .map((p) => p.name);
+// Caminho de imagem gravado pelo painel ("/fotos/x.jpg", a partir da raiz) ou relativo à ficha
+function caminhoImagem(valor, dir, rotulo) {
+  const v = texto(valor);
+  if (!v) return null;
+  const caminho = v.startsWith('/') ? path.join(RAIZ, decodeURI(v)) : path.join(dir, v);
+  if (existsSync(caminho)) return caminho;
+  aviso(`${rotulo}: imagem "${v}" não encontrada.`);
+  return null;
+}
 
+async function arquivosDeAtletas() {
+  if (!existsSync(PASTA_ATLETAS)) return [];
+  const encontrados = [];
+  for (const e of await readdir(PASTA_ATLETAS, { withFileTypes: true })) {
+    if (e.name.startsWith('_') || e.name.startsWith('.')) continue;
+    if (e.isFile() && /\.md$/i.test(e.name) && e.name.toLowerCase() !== 'readme.md') {
+      encontrados.push({ arquivo: path.join(PASTA_ATLETAS, e.name), nomeBase: e.name.replace(/\.md$/i, ''), dir: PASTA_ATLETAS, rotulo: `atletas/${e.name}` });
+    } else if (e.isDirectory() && existsSync(path.join(PASTA_ATLETAS, e.name, 'ficha.md'))) {
+      const dir = path.join(PASTA_ATLETAS, e.name);
+      encontrados.push({ arquivo: path.join(dir, 'ficha.md'), nomeBase: e.name, dir, rotulo: `atletas/${e.name}/ficha.md`, legado: true });
+    }
+  }
+  return encontrados;
+}
+
+async function lerAtletas() {
   const atletas = [];
   const slugs = new Set();
-  for (const pasta of pastas) {
-    const dir = path.join(PASTA_ATLETAS, pasta);
-    const arquivoFicha = path.join(dir, 'ficha.md');
-    const rotulo = `atletas/${pasta}/ficha.md`;
-    if (!existsSync(arquivoFicha)) {
-      aviso(`atletas/${pasta}: pasta sem ficha.md — ignorada.`);
-      continue;
-    }
-    const { dados, corpo } = lerFicha(await readFile(arquivoFicha, 'utf8'), rotulo);
-    const t = (k) => (Array.isArray(dados[k]) ? '' : String(dados[k] ?? '').trim());
-    const lista = (k) => (Array.isArray(dados[k]) ? dados[k].filter(Boolean) : t(k) ? [t(k)] : []);
-    const sim = (k) => /^(sim|s|true|yes|1)$/i.test(t(k));
-    const nao = (k) => /^(n[aã]o|n|false|no|0)$/i.test(t(k));
+  for (const { arquivo, nomeBase, dir, rotulo, legado } of await arquivosDeAtletas()) {
+    const { dados: bruto, corpo } = separarFicha(await readFile(arquivo, 'utf8'), rotulo);
+    const dados = Object.fromEntries(Object.entries(bruto).map(([k, v]) => [k.toLowerCase(), v]));
+    const t = (k) => texto(dados[k]);
 
-    if (nao('publicar')) {
-      console.log(`  · ${pasta}: publicar: não — fora do site.`);
+    if (falso(dados.publicar) || verdadeiro(dados.rascunho)) {
+      console.log(`  · ${rotulo}: rascunho — fora do site.`);
       continue;
     }
     const nome = t('nome');
@@ -211,47 +260,39 @@ async function lerAtletas() {
     }
     if (!posicao) aviso(`${rotulo}: falta o campo "posicao".`);
 
-    const slug = slugify(pasta);
-    if (slug !== pasta) aviso(`atletas/${pasta}: o endereço da página será "${slug}" (use só letras minúsculas, números e hífens no nome da pasta).`);
-    if (slugs.has(slug)) throw new Error(`Duas pastas geram o mesmo endereço "${slug}". Renomeie uma delas.`);
+    const slug = slugify(nomeBase);
+    if (slug !== nomeBase) aviso(`${rotulo}: o endereço da página será "${slug}".`);
+    if (slugs.has(slug)) throw new Error(`Dois atletas geram o mesmo endereço "${slug}". Renomeie um deles.`);
     slugs.add(slug);
 
-    let foto = t('foto') ? path.join(dir, t('foto')) : null;
-    if (foto && !existsSync(foto)) {
-      aviso(`${rotulo}: foto "${t('foto')}" não encontrada na pasta.`);
-      foto = null;
-    }
-    if (!foto) {
+    let foto = caminhoImagem(dados.foto, dir, rotulo);
+    if (!foto && legado) {
       const arquivos = (await readdir(dir)).filter((a) => EXT_IMAGEM.test(a)).sort();
       const preferida = arquivos.find((a) => /^foto\./i.test(a)) || arquivos[0];
       if (preferida) foto = path.join(dir, preferida);
     }
-    if (!foto && !sim('exemplo')) aviso(`${rotulo}: sem foto — será usada a imagem "Foto em breve".`);
+    const exemplo = verdadeiro(dados.exemplo);
+    if (!foto && !exemplo) aviso(`${rotulo}: sem foto — será usada a imagem "Foto em breve".`);
+    const galeria = lista(dados.galeria).map((v) => caminhoImagem(v, dir, rotulo)).filter(Boolean);
 
     const videoPrincipal = t('video');
     const idVideo = idYoutube(videoPrincipal);
     if (videoPrincipal && !idVideo) aviso(`${rotulo}: não reconheci o link do YouTube "${videoPrincipal}".`);
-    const videosExtras = lista('videos')
-      .map((item) => {
-        const p = partes(item);
-        const url = p.length > 1 ? p[1] : p[0];
-        const id = idYoutube(url);
-        if (!id) aviso(`${rotulo}: link de vídeo extra não reconhecido "${item}".`);
-        return id ? { titulo: p.length > 1 ? p[0] : 'Vídeo', id, url } : null;
+    const videosExtras = itens(dados.videos, ['url'], (p) => (p.length > 1 ? { titulo: p[0], url: p[1] } : { url: p[0] }))
+      .map((v) => {
+        const id = idYoutube(v.url);
+        if (!id) aviso(`${rotulo}: link de vídeo extra não reconhecido "${v.url}".`);
+        return id ? { titulo: v.titulo, id } : null;
       })
       .filter(Boolean);
 
     const nascimento = lerData(t('nascimento'), rotulo);
     const categoria = t('categoria');
     const catSlug = slugify(categoria) || 'outros';
-    if (categoria && !['feminino', 'masculino'].includes(catSlug)) {
-      aviso(`${rotulo}: categoria "${categoria}" — use Feminino ou Masculino.`);
-    }
+    if (categoria && !['feminino', 'masculino'].includes(catSlug)) aviso(`${rotulo}: categoria "${categoria}" — use Feminino ou Masculino.`);
 
     atletas.push({
       slug,
-      pasta,
-      dir,
       nome,
       nomeCompleto: t('nome_completo'),
       categoria,
@@ -270,21 +311,26 @@ async function lerAtletas() {
       pe: t('pe_dominante'),
       clubeAtual: t('clube_atual'),
       ultimoClube: t('ultimo_clube'),
-      situacao: t('situacao'),
+      situacao: { pt: t('situacao'), en: t('situacao_en'), es: t('situacao_es') },
       resumo: t('resumo'),
       instagram: t('instagram'),
-      video: idVideo ? { id: idVideo, url: videoPrincipal } : null,
+      video: idVideo ? { id: idVideo } : null,
       videosExtras,
-      trajetoria: lista('trajetoria').map(partes),
-      conquistas: lista('conquistas').map(partes),
-      estatisticas: lista('estatisticas').map(partes).filter((p) => p.length >= 2),
-      extras: lista('extras').map(partes).filter((p) => p.length >= 2),
-      historia: textoParaHtml(corpo),
+      trajetoria: itens(dados.trajetoria, ['clube', 'periodo'], (p) =>
+        p.length >= 2 ? { periodo: p[0], clube: p[1], detalhe: p.slice(2).join(' · ') } : { clube: p[0] },
+      ),
+      conquistas: itens(dados.conquistas, ['titulo'], (p) =>
+        p.length >= 2 && /^\d{4}/.test(p[0]) ? { ano: p[0], titulo: p.slice(1).join(' · ') } : { titulo: p.join(' · ') },
+      ),
+      estatisticas: itens(dados.estatisticas, ['valor'], (p) => ({ rotulo: p[0], valor: p[1], obs: p[2] })).filter((e) => e.rotulo && e.valor),
+      extras: itens(dados.extras, ['valor'], (p) => ({ rotulo: p[0], valor: p.slice(1).join(' · ') })).filter((e) => e.rotulo && e.valor),
+      historia: { pt: textoParaHtml(corpo), en: textoParaHtml(t('historia_en')), es: textoParaHtml(t('historia_es')) },
       foto,
+      galeria,
       foco: t('foco'),
       ordem: Number(t('ordem')) || 999,
-      listar: !nao('listar'),
-      exemplo: sim('exemplo'),
+      listar: !falso(dados.listar) && !verdadeiro(dados.so_link),
+      exemplo,
     });
   }
   atletas.sort((a, b) => a.ordem - b.ordem || a.nome.localeCompare(b.nome, 'pt-BR'));
@@ -298,26 +344,43 @@ const POSICAO_FOCO = { topo: 'north', centro: 'centre', baixo: 'south' };
 async function prepararImagens(atleta) {
   const destino = path.join(DIST, 'atletas', atleta.slug);
   await mkdir(destino, { recursive: true });
-  if (!atleta.foto) {
-    return { card: null, grande: null, og: 'assets/og-gf.jpg' };
-  }
-  if (!sharp) {
-    const nome = 'foto' + path.extname(atleta.foto).toLowerCase();
-    await copyFile(atleta.foto, path.join(destino, nome));
-    return { card: nome, grande: nome, og: `atletas/${atleta.slug}/${nome}` };
-  }
-  const position = POSICAO_FOCO[slugify(atleta.foco)] || sharp.strategy.attention;
-  const base = () => sharp(atleta.foto).rotate();
-  await base().resize(640, 800, { fit: 'cover', position }).webp({ quality: 80 }).toFile(path.join(destino, 'foto-card.webp'));
-  await base()
-    .resize(1080, 1350, { fit: 'cover', position, withoutEnlargement: true })
-    .webp({ quality: 84 })
-    .toFile(path.join(destino, 'foto.webp'));
+  const imagens = { card: null, grande: null, og: 'assets/og-gf.jpg', galeria: [] };
 
-  // Imagem de prévia (WhatsApp, redes): foto à direita, logo G&F à esquerda
-  const fotoOg = await base().resize(520, 630, { fit: 'cover', position }).toBuffer();
-  await gerarCartaoOg(fotoOg, path.join(destino, 'compartilhar.jpg'));
-  return { card: 'foto-card.webp', grande: 'foto.webp', og: `atletas/${atleta.slug}/compartilhar.jpg` };
+  if (!sharp) {
+    if (atleta.foto) {
+      const nome = 'foto' + path.extname(atleta.foto).toLowerCase();
+      await copyFile(atleta.foto, path.join(destino, nome));
+      Object.assign(imagens, { card: nome, grande: nome, og: `atletas/${atleta.slug}/${nome}` });
+    }
+    for (const [i, origem] of atleta.galeria.entries()) {
+      const nome = `galeria-${i + 1}${path.extname(origem).toLowerCase()}`;
+      await copyFile(origem, path.join(destino, nome));
+      imagens.galeria.push({ grande: nome, mini: nome });
+    }
+    return imagens;
+  }
+
+  if (atleta.foto) {
+    const position = POSICAO_FOCO[slugify(atleta.foco)] || sharp.strategy.attention;
+    const base = () => sharp(atleta.foto).rotate();
+    await base().resize(640, 800, { fit: 'cover', position }).webp({ quality: 80 }).toFile(path.join(destino, 'foto-card.webp'));
+    await base()
+      .resize(1080, 1350, { fit: 'cover', position, withoutEnlargement: true })
+      .webp({ quality: 84 })
+      .toFile(path.join(destino, 'foto.webp'));
+    // Imagem de prévia (WhatsApp, redes): foto à direita, logo G&F à esquerda
+    const fotoOg = await base().resize(520, 630, { fit: 'cover', position }).toBuffer();
+    await gerarCartaoOg(fotoOg, path.join(destino, 'compartilhar.jpg'));
+    Object.assign(imagens, { card: 'foto-card.webp', grande: 'foto.webp', og: `atletas/${atleta.slug}/compartilhar.jpg` });
+  }
+
+  for (const [i, origem] of atleta.galeria.entries()) {
+    const n = i + 1;
+    await sharp(origem).rotate().resize(1600, 1600, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 82 }).toFile(path.join(destino, `galeria-${n}.webp`));
+    await sharp(origem).rotate().resize(600, 600, { fit: 'cover', position: sharp.strategy.attention }).webp({ quality: 78 }).toFile(path.join(destino, `galeria-${n}-mini.webp`));
+    imagens.galeria.push({ grande: `galeria-${n}.webp`, mini: `galeria-${n}-mini.webp` });
+  }
+  return imagens;
 }
 
 async function gerarCartaoOg(fotoBuffer, saida) {
@@ -347,27 +410,38 @@ async function gerarCartaoOg(fotoBuffer, saida) {
   await sharp(fundo).composite(camadas).jpeg({ quality: 86, mozjpeg: true }).toFile(saida);
 }
 
-// ---------------------------------------------------------------- HTML
+// ---------------------------------------------------------------- HTML: estrutura comum
 
-function cabecalhoHtml({ titulo, descricao, caminho, raiz, ogImagem, noindex, tipo = 'website', versoes }) {
+function cabecalhoHtml({ idioma, titulo, descricao, caminho, raiz, ogImagem, noindex, tipo = 'website', rel, versoes }) {
+  const t = UI[idioma];
   const canonica = config.url ? absoluta(caminho) : '';
+  const alternativos =
+    config.url && rel !== null
+      ? IDIOMAS.map((l) => `<link rel="alternate" hreflang="${UI[l].htmlLang}" href="${esc(absoluta(prefixo(l) + rel))}">`).join('\n') +
+        `\n<link rel="alternate" hreflang="x-default" href="${esc(absoluta(rel))}">\n`
+      : '';
+  const umami = config.umami?.id
+    ? `<script defer src="${esc(config.umami.script || 'https://cloud.umami.is/script.js')}" data-website-id="${esc(config.umami.id)}"${
+        config.url ? ` data-domains="${esc(config.umami.dominios || new URL(config.url).hostname)}"` : ''
+      }></script>\n`
+    : '';
   return `<!doctype html>
-<html lang="pt-BR">
+<html lang="${t.htmlLang}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(titulo)}</title>
 <meta name="description" content="${esc(descricao)}">
-${noindex ? '<meta name="robots" content="noindex, nofollow">\n' : ''}${canonica ? `<link rel="canonical" href="${esc(canonica)}">\n` : ''}<meta property="og:type" content="${tipo}">
+${noindex ? '<meta name="robots" content="noindex, nofollow">\n' : ''}${canonica ? `<link rel="canonical" href="${esc(canonica)}">\n` : ''}${alternativos}<meta property="og:type" content="${tipo}">
 <meta property="og:site_name" content="${esc(config.nome)}">
-<meta property="og:locale" content="pt_BR">
+<meta property="og:locale" content="${t.ogLocale}">
 <meta property="og:title" content="${esc(titulo)}">
 <meta property="og:description" content="${esc(descricao)}">
 ${canonica ? `<meta property="og:url" content="${esc(canonica)}">\n` : ''}<meta property="og:image" content="${esc(absoluta(ogImagem))}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#070707">
+<meta name="theme-color" content="#ffffff">
 <link rel="icon" href="${raiz}assets/favicon.ico" sizes="32x32">
 <link rel="icon" href="${raiz}assets/favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="${raiz}assets/apple-touch-icon.png">
@@ -376,138 +450,168 @@ ${canonica ? `<meta property="og:url" content="${esc(canonica)}">\n` : ''}<meta 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="${raiz}styles.css?v=${versoes.css}">
 <script defer src="${raiz}app.js?v=${versoes.js}"></script>
-</head>`;
+${umami}</head>`;
+}
+
+// Troca de idioma: leva para a mesma página nos outros idiomas (no perfil, o mesmo atleta)
+function seletorIdioma(idioma, raiz, rel) {
+  if (rel === null) return '';
+  return `<nav class="idiomas" aria-label="${UI[idioma].idioma}">${IDIOMAS.map(
+    (l) =>
+      `<a href="${`${raiz}${prefixo(l)}${rel}` || './'}" hreflang="${UI[l].htmlLang}" lang="${UI[l].htmlLang}" title="${UI[l].nomeIdioma}"${
+        l === idioma ? ' aria-current="page"' : ''
+      }>${UI[l].sigla}</a>`,
+  ).join('')}</nav>`;
 }
 
 // isolado = página de um atleta enviada sozinha ao clube: a marca não leva para a lista dos outros atletas
-function topoHtml(raiz, textoWhats, isolado) {
+function topoHtml({ idioma, raiz, textoWhats, isolado, rel, atleta }) {
+  const t = UI[idioma];
   const marca = `<img class="marca__logo" src="${raiz}assets/logo-gf.png" alt="" width="52" height="52">
-      <span class="marca__texto"><strong>G&amp;F Assessoria</strong><small>Portfólio de atletas</small></span>`;
+      <span class="marca__texto"><strong>G&amp;F Assessoria</strong><small>${esc(t.subtituloMarca)}</small></span>`;
+  const inicio = raiz + prefixo(idioma) || './';
   return `<header class="topo" data-topo>
   <div class="container topo__interno">
-    ${isolado ? `<div class="marca">${marca}</div>` : `<a class="marca" href="${raiz}" aria-label="${esc(config.nome)} — portfólio de atletas">${marca}</a>`}
-    <a class="botao botao--ouro botao--pequeno" href="${esc(linkWhatsApp(textoWhats))}" target="_blank" rel="noopener">${icone.whatsapp}<span>Falar com a G&amp;F</span></a>
+    ${isolado ? `<div class="marca">${marca}</div>` : `<a class="marca" href="${inicio}" aria-label="G&amp;F Assessoria — ${esc(t.subtituloMarca)}">${marca}</a>`}
+    <div class="topo__acoes">
+      ${seletorIdioma(idioma, raiz, rel)}
+      <a class="botao botao--ouro botao--pequeno" href="${esc(linkWhatsApp(textoWhats))}" target="_blank" rel="noopener"${evento('WhatsApp G&F', atleta, idioma)}>${icone.whatsapp}<span>${esc(t.falarGF)}</span></a>
+    </div>
   </div>
 </header>`;
 }
 
-function rodapeHtml(raiz, textoWhats) {
+function rodapeHtml({ idioma, raiz, textoWhats, atleta }) {
+  const t = UI[idioma];
   return `<footer class="rodape" id="contato">
   <div class="container rodape__interno">
     <div class="rodape__marca">
       <img src="${raiz}assets/logo-gf.png" alt="" width="44" height="44" loading="lazy">
-      <span><strong>G&amp;F Assessoria</strong><small>Gestão de atletas · Intermediário CBF</small></span>
+      <span><strong>G&amp;F Assessoria</strong><small>${esc(t.rodapeMarca)}</small></span>
     </div>
     <ul class="rodape__contatos">
-      <li><a href="${esc(linkWhatsApp(textoWhats))}" target="_blank" rel="noopener">${icone.whatsapp}<span>${esc(config.whatsapp_exibicao)}</span></a></li>
-      <li><a href="mailto:${esc(config.email)}">${icone.email}<span>${esc(config.email)}</span></a></li>
+      <li><a href="${esc(linkWhatsApp(textoWhats))}" target="_blank" rel="noopener"${evento('WhatsApp G&F', atleta, idioma)}>${icone.whatsapp}<span>${esc(config.whatsapp_exibicao)}</span></a></li>
+      <li><a href="mailto:${esc(config.email)}"${evento('E-mail G&F', atleta, idioma)}>${icone.email}<span>${esc(config.email)}</span></a></li>
     </ul>
   </div>
   <div class="container rodape__base">
     <span>© <span data-ano>${HOJE.getFullYear()}</span> G&amp;F Assessoria</span>
-    <span>${esc(config.aviso_rodape || '')}</span>
+    <span>${esc(t.avisoRodape)}</span>
   </div>
 </footer>
 <div class="toast" role="status" aria-live="polite" data-toast></div>`;
 }
 
-function pagina({ titulo, descricao, caminho, raiz, ogImagem = 'assets/og-gf.jpg', noindex = false, tipo, classe = '', textoWhats, isolado = false, conteudo, versoes }) {
-  const whats = textoWhats || 'Olá, G&F! Vi o portfólio de atletas e gostaria de mais informações.';
-  return `${cabecalhoHtml({ titulo, descricao, caminho, raiz, ogImagem, noindex, tipo, versoes })}
+function pagina({ idioma, titulo, descricao, caminho, raiz, ogImagem = 'assets/og-gf.jpg', noindex = false, tipo, classe = '', textoWhats, isolado = false, rel = '', atleta = null, conteudo, versoes }) {
+  const t = UI[idioma];
+  const whats = textoWhats || t.whatsGeral;
+  return `${cabecalhoHtml({ idioma, titulo, descricao, caminho, raiz, ogImagem, noindex, tipo, rel, versoes })}
 <body class="${classe}">
-<a class="pular" href="#conteudo">Pular para o conteúdo</a>
-${topoHtml(raiz, whats, isolado)}
+<a class="pular" href="#conteudo">${esc(t.pular)}</a>
+${topoHtml({ idioma, raiz, textoWhats: whats, isolado, rel, atleta })}
 <main id="conteudo">
 ${conteudo}
 </main>
-${rodapeHtml(raiz, whats)}
+${rodapeHtml({ idioma, raiz, textoWhats: whats, atleta })}
 </body>
 </html>
 `;
 }
 
-function linhaMeta(atleta) {
+// ---------------------------------------------------------------- HTML: peças do atleta
+
+function seloCategoria(a, tr) {
+  return [tr.categoria(a.catSlug, a.categoria), tr.categoriaIdade(a.categoriaIdade)].filter(Boolean).map(esc).join(' · ');
+}
+
+function linhaMeta(a, idioma) {
   const pedacos = [];
-  if (atleta.idade) pedacos.push(`<span data-nascimento="${atleta.nascimento.iso}">${atleta.idade} anos</span>`);
-  const clube = atleta.clubeAtual || atleta.ultimoClube;
+  if (a.idade) pedacos.push(`<span data-nascimento="${a.nascimento.iso}">${a.idade} ${UI[idioma].anos}</span>`);
+  const clube = a.clubeAtual || a.ultimoClube;
   if (clube) pedacos.push(`<span>${esc(clube)}</span>`);
   return pedacos.join('<span class="ponto" aria-hidden="true">·</span>');
 }
 
-function seloCategoria(atleta) {
-  return [atleta.categoria, atleta.categoriaIdade].filter(Boolean).map(esc).join(' · ');
-}
-
 // Envio individual do perfil: copia o link ou abre o WhatsApp com mensagem pronta para o clube
-function textoEnvio(atleta) {
-  const artigo = { feminino: 'da atleta', masculino: 'do atleta' }[atleta.catSlug] || 'de';
-  const pos = [atleta.posicao, atleta.categoriaIdade].filter(Boolean).join(', ');
-  return `Olá! Segue o perfil ${artigo} ${atleta.nome}${pos ? ` (${pos})` : ''}, apresentado pela G&F Assessoria:\n${absoluta(`atletas/${atleta.slug}/`)}`;
-}
-
-function botoesEnvio(atleta, comTexto = false) {
-  const rotulo = (t) => (comTexto ? `<span>${t}</span>` : `<span class="sr-only">${t}</span>`);
+function botoesEnvio(a, idioma, comTexto = false) {
+  const t = UI[idioma];
+  const tr = tradutor(idioma, a.catSlug);
+  const url = absoluta(`${prefixo(idioma)}atletas/${a.slug}/`);
+  const pos = [tr.posicao(a.posicao), tr.categoriaIdade(a.categoriaIdade)].filter(Boolean).join(', ');
+  const rotulo = (r) => (comTexto ? `<span>${esc(r)}</span>` : `<span class="sr-only">${esc(r)}</span>`);
   return `<div class="envio${comTexto ? ' envio--texto' : ''}">
-          <button type="button" class="envio__botao" data-copiar-link="${esc(absoluta(`atletas/${atleta.slug}/`))}" title="Copiar link do perfil">${icone.link}${rotulo('Copiar link')}</button>
-          <a class="envio__botao" href="https://wa.me/?text=${encodeURIComponent(textoEnvio(atleta))}" target="_blank" rel="noopener" title="Enviar perfil pelo WhatsApp">${icone.whatsapp}${rotulo('Enviar pelo WhatsApp')}</a>
+          <button type="button" class="envio__botao" data-copiar-link="${esc(url)}" title="${esc(t.copiarLinkDica)}"${evento('Copiou link', a, idioma)}>${icone.link}${rotulo(t.copiarLink)}</button>
+          <a class="envio__botao" href="https://wa.me/?text=${encodeURIComponent(t.envio(a.catSlug, a.nome, pos, url))}" target="_blank" rel="noopener" title="${esc(t.enviarWhatsDica)}"${evento('Enviou perfil pelo WhatsApp', a, idioma)}>${icone.whatsapp}${rotulo(t.enviarWhats)}</a>
         </div>`;
 }
 
-function imagemAtleta(atleta, imagens, tamanho, raiz, extra = '') {
-  const alt = `Foto de ${atleta.nome}`;
-  const arquivo = tamanho === 'card' ? imagens.card : imagens.grande;
-  if (!arquivo) return `<img src="${raiz}assets/sem-foto.svg" alt="${esc(atleta.nome)} — foto em breve" ${extra}>`;
-  const prefixo = raiz + `atletas/${atleta.slug}/`;
-  return `<img src="${prefixo}${arquivo}" alt="${esc(alt)}" ${extra}>`;
+function imagemAtleta(a, tamanho, raiz, idioma, extra = '') {
+  const t = UI[idioma];
+  const arquivo = tamanho === 'card' ? a.imagens.card : a.imagens.grande;
+  if (!arquivo) return `<img src="${raiz}assets/sem-foto.svg" alt="${esc(t.fotoEmBreve(a.nome))}" ${extra}>`;
+  return `<img src="${raiz}atletas/${a.slug}/${arquivo}" alt="${esc(t.fotoDe(a.nome))}" ${extra}>`;
 }
 
-function paginaInicial(atletas, versoes) {
-  const raiz = '';
+function blocoVideo(video, titulo, a, idioma, principal = false) {
+  return `<div class="video${principal ? ' video--principal' : ''}">
+    <button type="button" class="video__capa" data-youtube="${video.id}" data-titulo="${esc(titulo)}" aria-label="${esc(`${UI[idioma].reproduzir}: ${titulo}`)}"${evento(principal ? 'Assistiu ao vídeo' : 'Assistiu a vídeo extra', a, idioma)}>
+      <img src="https://i.ytimg.com/vi/${video.id}/hqdefault.jpg" alt="" loading="lazy" width="480" height="360">
+      <span class="video__play">${icone.play}</span>
+    </button>
+  </div>`;
+}
+
+// ---------------------------------------------------------------- páginas
+
+function paginaInicial(atletas, idioma, versoes) {
+  const t = UI[idioma];
+  const raiz = idioma === 'pt' ? '' : '../';
   const visiveis = atletas.filter((a) => a.listar);
   const categorias = [...new Set(visiveis.map((a) => a.catSlug))].filter((c) => c !== 'outros');
-  const grupos = Object.keys(GRUPOS).filter((g) => visiveis.some((a) => a.grupo === g));
+  const grupos = GRUPOS.filter((g) => visiveis.some((a) => a.grupo === g));
 
   const filtroCategoria =
     categorias.length > 1
-      ? `<div class="filtros__grupo" role="group" aria-label="Modalidade">
-          <button type="button" class="pilula" data-filtro-categoria="todas" aria-pressed="true">Todos</button>
-          ${categorias
-            .map((c) => `<button type="button" class="pilula" data-filtro-categoria="${c}" aria-pressed="false">${c === 'feminino' ? 'Feminino' : 'Masculino'}</button>`)
-            .join('\n          ')}
+      ? `<div class="filtros__grupo" role="group" aria-label="${esc(t.modalidade)}">
+          <button type="button" class="pilula" data-filtro-categoria="todas" aria-pressed="true">${esc(t.todos)}</button>
+          ${categorias.map((c) => `<button type="button" class="pilula" data-filtro-categoria="${c}" aria-pressed="false">${esc(t.categorias[c])}</button>`).join('\n          ')}
         </div>`
       : '';
   const filtroPosicao =
     grupos.length > 1
       ? `<label class="campo">
-          <span class="sr-only">Posição</span>
+          <span class="sr-only">${esc(t.posicao)}</span>
           <select data-filtro-posicao>
-            <option value="todas">Todas as posições</option>
-            ${grupos.map((g) => `<option value="${g}">${GRUPOS[g]}</option>`).join('\n            ')}
+            <option value="todas">${esc(t.todasPosicoes)}</option>
+            ${grupos.map((g) => `<option value="${g}">${esc(t.grupos[g])}</option>`).join('\n            ')}
           </select>
         </label>`
       : '';
 
   const cartoes = visiveis
     .map((a, i) => {
-      const imagens = a.imagens;
-      const busca = semAcento(`${a.nome} ${a.nomeCompleto} ${a.posicao} ${a.posicaoSecundaria} ${a.clubeAtual} ${a.ultimoClube} ${a.naturalidade}`).toLowerCase();
+      const tr = tradutor(idioma, a.catSlug);
+      const posicoes = [tr.posicao(a.posicao), tr.posicao(a.posicaoSecundaria)].filter(Boolean);
+      const busca = semAcento(
+        [a.nome, a.nomeCompleto, a.posicao, a.posicaoSecundaria, ...posicoes, a.clubeAtual, a.ultimoClube, a.naturalidade].join(' '),
+      ).toLowerCase();
       return `<article class="cartao" data-atleta data-categoria="${a.catSlug}" data-posicao="${a.grupo}" data-busca="${esc(busca)}">
         <a class="cartao__link" href="atletas/${a.slug}/">
           <div class="cartao__foto">
-            ${imagemAtleta(a, imagens, 'card', raiz, `width="640" height="800" ${i > 3 ? 'loading="lazy"' : ''} decoding="async"`)}
-            ${seloCategoria(a) ? `<span class="selo">${seloCategoria(a)}</span>` : ''}
-            ${a.exemplo ? '<span class="selo selo--exemplo">Perfil de exemplo</span>' : ''}
-            ${a.video ? `<span class="cartao__video" title="Tem vídeo de melhores lances">${icone.play}<span class="sr-only">Com vídeo</span></span>` : ''}
+            ${imagemAtleta(a, 'card', raiz, idioma, `width="640" height="800" ${i > 3 ? 'loading="lazy"' : ''} decoding="async"`)}
+            ${seloCategoria(a, tr) ? `<span class="selo">${seloCategoria(a, tr)}</span>` : ''}
+            ${a.exemplo ? `<span class="selo selo--exemplo">${esc(t.perfilExemplo)}</span>` : ''}
+            ${a.video ? `<span class="cartao__video" title="${esc(t.temVideo)}">${icone.play}<span class="sr-only">${esc(t.temVideo)}</span></span>` : ''}
           </div>
           <div class="cartao__corpo">
-            <p class="cartao__posicao">${esc([a.posicao, a.posicaoSecundaria].filter(Boolean).join(' · '))}</p>
+            <p class="cartao__posicao">${esc(posicoes.join(' · '))}</p>
             <h2 class="cartao__nome">${esc(a.nome)}</h2>
-            <p class="cartao__meta">${linhaMeta(a)}</p>
+            <p class="cartao__meta">${linhaMeta(a, idioma)}</p>
           </div>
         </a>
         <div class="cartao__acoes">
-          <a class="cartao__ver" href="atletas/${a.slug}/">Ver perfil ${icone.seta}</a>
-          ${botoesEnvio(a)}
+          <a class="cartao__ver" href="atletas/${a.slug}/">${esc(t.verPerfil)} ${icone.seta}</a>
+          ${botoesEnvio(a, idioma)}
         </div>
       </article>`;
     })
@@ -516,82 +620,92 @@ function paginaInicial(atletas, versoes) {
   const conteudo = `
 <section class="abertura">
   <div class="container">
-    <h1 class="abertura__titulo">Portfólio de atletas</h1>
-    <p class="abertura__texto">Vídeo com os melhores lances, ficha técnica e trajetória de cada atleta.</p>
+    <h1 class="abertura__titulo">${esc(t.tituloPortfolio)}</h1>
+    <p class="abertura__texto">${esc(t.textoPortfolio)}</p>
   </div>
 </section>
 
-<section class="secao secao--lista" id="atletas" aria-label="Atletas">
+<section class="secao secao--lista" id="atletas" aria-label="${esc(t.tituloPortfolio)}">
   <div class="container">
     <div class="filtros">
       ${filtroCategoria}
       ${filtroPosicao}
       <label class="campo campo--busca">
-        <span class="sr-only">Buscar</span>
-        <input type="search" placeholder="Buscar por nome, posição ou clube" data-filtro-busca autocomplete="off">
+        <span class="sr-only">${esc(t.buscar)}</span>
+        <input type="search" placeholder="${esc(t.buscarDica)}" data-filtro-busca autocomplete="off">
       </label>
-      <p class="filtros__contador" data-contador aria-live="polite">${visiveis.length === 1 ? '1 atleta' : `${visiveis.length} atletas`}</p>
+      <p class="filtros__contador" data-contador data-um="${esc(t.contador(1))}" data-varios="${esc(t.contador(0)).replace(/^0/, '{n}')}" aria-live="polite">${esc(t.contador(visiveis.length))}</p>
     </div>
     <div class="grade-atletas" data-lista-atletas>
-      ${cartoes || '<p class="vazio">Os perfis estão sendo atualizados. Fale com a G&amp;F para conhecer os atletas disponíveis.</p>'}
+      ${cartoes || `<p class="vazio">${esc(t.listaVazia)}</p>`}
     </div>
-    <p class="vazio" data-vazio hidden>Nenhum atleta encontrado com esses filtros.</p>
+    <p class="vazio" data-vazio hidden>${esc(t.filtroVazio)}</p>
   </div>
 </section>`;
 
   return pagina({
-    titulo: `${config.titulo} · ${config.nome}`,
-    descricao: config.descricao,
-    caminho: '',
+    idioma,
+    titulo: `${t.tituloPortfolio} · ${config.nome}`,
+    descricao: t.descricaoSite,
+    caminho: prefixo(idioma),
     raiz,
     classe: 'pagina-inicial',
+    rel: '',
     conteudo,
     versoes,
   });
 }
 
-function blocoVideo(video, titulo, principal = false) {
-  return `<div class="video${principal ? ' video--principal' : ''}">
-    <button type="button" class="video__capa" data-youtube="${video.id}" data-titulo="${esc(titulo)}" aria-label="Reproduzir vídeo: ${esc(titulo)}">
-      <img src="https://i.ytimg.com/vi/${video.id}/hqdefault.jpg" alt="" loading="lazy" width="480" height="360">
-      <span class="video__play">${icone.play}</span>
-    </button>
-  </div>`;
-}
-
-function paginaAtleta(a, versoes) {
-  const raiz = '../../';
-  const imagens = a.imagens;
-  const urlPerfil = absoluta(`atletas/${a.slug}/`);
+function paginaAtleta(a, idioma, versoes) {
+  const t = UI[idioma];
+  const tr = tradutor(idioma, a.catSlug);
+  const raiz = idioma === 'pt' ? '../../' : '../../../';
+  const caminho = `${prefixo(idioma)}atletas/${a.slug}/`;
+  const urlPerfil = absoluta(caminho);
   const primeiroNome = a.nome.split(' ')[0];
-  const posicoes = [a.posicao, a.posicaoSecundaria].filter(Boolean).join(' · ');
-  const textoWhats = `Olá, G&F! Vi o perfil de ${a.nome}${a.posicao ? ` (${a.posicao})` : ''} no portfólio de atletas e gostaria de mais informações.\n${urlPerfil}`;
+  const posicao = tr.posicao(a.posicao);
+  const posicaoSecundaria = tr.posicao(a.posicaoSecundaria);
+  const posicoes = [posicao, posicaoSecundaria].filter(Boolean).join(' · ');
+  const textoWhats = t.whatsAtleta(a.nome, posicao, urlPerfil);
   const whats = linkWhatsApp(textoWhats);
   const clube = a.clubeAtual || a.ultimoClube;
-  const rotuloClube = a.clubeAtual ? 'Clube atual' : 'Último clube';
+  const rotuloClube = a.clubeAtual ? t.clubeAtual : t.ultimoClube;
+  const situacao = a.situacao[idioma] || tr.situacao(a.situacao.pt);
+  const altura = tr.medida(a.altura);
+  const peso = tr.medida(a.peso);
+  const pe = tr.pe(a.pe);
+  const categoria = [tr.categoria(a.catSlug, a.categoria), tr.categoriaIdade(a.categoriaIdade)].filter(Boolean).join(' · ');
+  const historia = a.historia[idioma] || a.historia.pt;
+  const historiaOriginal = !a.historia[idioma] && a.historia.pt && idioma !== 'pt';
 
   const numeros = [
-    a.idade ? ['Idade', `<span data-nascimento="${a.nascimento.iso}" data-formato="curto">${a.idade}</span><small>anos</small>`] : null,
-    a.altura ? ['Altura', esc(a.altura).replace(/ (m)$/, '<small>$1</small>')] : null,
-    a.peso ? ['Peso', esc(a.peso).replace(/ (kg)$/, '<small>$1</small>')] : null,
-    a.pe ? ['Pé dominante', `<span class="numeros__texto">${esc(a.pe)}</span>`] : null,
+    a.idade ? [t.idade, `<span data-nascimento="${a.nascimento.iso}" data-formato="curto">${a.idade}</span><small>${esc(t.anos)}</small>`] : null,
+    altura ? [t.altura, esc(altura).replace(/ (m)$/, '<small>$1</small>')] : null,
+    peso ? [t.peso, esc(peso).replace(/ (kg)$/, '<small>$1</small>')] : null,
+    pe ? [t.pe, `<span class="numeros__texto">${esc(pe)}</span>`] : null,
   ].filter(Boolean);
 
   const ficha = [
-    ['Nome completo', a.nomeCompleto],
-    ['Data de nascimento', a.nascimento ? `${a.nascimento.br}${a.idade ? ` <span class="suave">(<span data-nascimento="${a.nascimento.iso}">${a.idade} anos</span>)</span>` : ''}` : '', true],
-    ['Posição', a.posicao],
-    ['Posição secundária', a.posicaoSecundaria],
-    ['Pé dominante', a.pe],
-    ['Altura', a.altura],
-    ['Peso', a.peso],
-    ['Categoria', [a.categoria, a.categoriaIdade].filter(Boolean).join(' · ')],
+    [t.campos.nomeCompleto, a.nomeCompleto],
+    [
+      t.campos.nascimento,
+      a.nascimento
+        ? `${esc(formatarData(a.nascimento, idioma))}${a.idade ? ` <span class="suave">(<span data-nascimento="${a.nascimento.iso}">${a.idade} ${esc(t.anos)}</span>)</span>` : ''}`
+        : '',
+      true,
+    ],
+    [t.campos.posicao, posicao],
+    [t.campos.posicaoSecundaria, posicaoSecundaria],
+    [t.pe, pe],
+    [t.altura, altura],
+    [t.peso, peso],
+    [t.campos.categoria, categoria],
     [rotuloClube, clube],
-    ['Situação', a.situacao],
-    ['Naturalidade', a.naturalidade],
-    ['Nacionalidade', a.nacionalidade],
-    ['Passaporte', a.passaporte],
-    ...a.extras.map((p) => [p[0], p.slice(1).join(' · ')]),
+    [t.situacao, situacao],
+    [t.campos.naturalidade, a.naturalidade],
+    [t.campos.nacionalidade, tr.nacionalidade(a.nacionalidade)],
+    [t.campos.passaporte, tr.nacionalidade(a.passaporte)],
+    ...a.extras.map((e) => [tr.rotulo(e.rotulo), e.valor]),
   ]
     .filter(([, v]) => v)
     .map(([rotulo, valor, html]) => `<div><dt>${esc(rotulo)}</dt><dd>${html ? valor : esc(valor)}</dd></div>`)
@@ -599,13 +713,15 @@ function paginaAtleta(a, versoes) {
 
   const trajetoria = a.trajetoria.length
     ? `<div class="bloco">
-          <h3 class="bloco__titulo">Trajetória</h3>
+          <h3 class="bloco__titulo">${esc(t.trajetoria)}</h3>
           <ol class="linha-tempo">
             ${a.trajetoria
-              .map((p) => {
-                const [periodo, clubeT, detalhe] = p.length >= 2 ? p : ['', p[0]];
-                return `<li>${periodo ? `<span class="linha-tempo__periodo">${esc(periodo)}</span>` : ''}<strong>${esc(clubeT)}</strong>${detalhe ? `<span class="linha-tempo__detalhe">${esc(p.slice(2).join(' · '))}</span>` : ''}</li>`;
-              })
+              .map(
+                (e) =>
+                  `<li>${e.periodo ? `<span class="linha-tempo__periodo">${esc(tr.termos(e.periodo))}</span>` : ''}<strong>${esc(e.clube)}</strong>${
+                    e.detalhe ? `<span class="linha-tempo__detalhe">${esc(tr.termos(e.detalhe))}</span>` : ''
+                  }</li>`,
+              )
               .join('\n            ')}
           </ol>
         </div>`
@@ -613,14 +729,13 @@ function paginaAtleta(a, versoes) {
 
   const conquistas = a.conquistas.length
     ? `<div class="bloco">
-          <h3 class="bloco__titulo">Conquistas e destaques</h3>
+          <h3 class="bloco__titulo">${esc(t.conquistas)}</h3>
           <ul class="conquistas">
             ${a.conquistas
-              .map((p) => {
-                const temAno = p.length >= 2 && /^\d{4}/.test(p[0]);
-                const ano = temAno ? p[0] : '';
-                const texto = temAno ? p.slice(1).join(' · ') : p.join(' · ');
-                return `<li>${icone.trofeu}<span>${ano ? `<span class="conquistas__ano">${esc(ano)}</span>` : ''}${esc(texto)}</span></li>`;
+              .map((c) => {
+                // Sem tradução cadastrada, mantém o título original inteiro (tradução parcial fica estranha)
+                const titulo = (idioma !== 'pt' && c[`titulo_${idioma}`]) || c.titulo;
+                return `<li>${icone.trofeu}<span>${c.ano ? `<span class="conquistas__ano">${esc(c.ano)}</span>` : ''}${esc(titulo)}</span></li>`;
               })
               .join('\n            ')}
           </ul>
@@ -629,9 +744,11 @@ function paginaAtleta(a, versoes) {
 
   const estatisticas = a.estatisticas.length
     ? `<div class="bloco">
-          <h3 class="bloco__titulo">Números</h3>
+          <h3 class="bloco__titulo">${esc(t.numeros)}</h3>
           <dl class="estatisticas">
-            ${a.estatisticas.map((p) => `<div><dt>${esc(p[0])}${p[2] ? `<small>${esc(p[2])}</small>` : ''}</dt><dd>${esc(p[1])}</dd></div>`).join('\n            ')}
+            ${a.estatisticas
+              .map((e) => `<div><dt>${esc(tr.rotulo(e.rotulo))}${e.obs ? `<small>${esc(tr.termos(e.obs))}</small>` : ''}</dt><dd>${esc(e.valor)}</dd></div>`)
+              .join('\n            ')}
           </dl>
         </div>`
     : '';
@@ -640,20 +757,23 @@ function paginaAtleta(a, versoes) {
 <section class="secao secao--video" id="video" aria-labelledby="titulo-video">
   <div class="container container--estreito">
     <div class="secao__cabeca secao__cabeca--centro">
-      <p class="sobretitulo">Melhores lances</p>
-      <h2 id="titulo-video" class="secao__titulo">${esc(a.nome)} em campo</h2>
+      <p class="sobretitulo">${esc(t.melhoresLances)}</p>
+      <h2 id="titulo-video" class="secao__titulo">${esc(t.emCampo(a.nome))}</h2>
     </div>
     ${
       a.video
-        ? `${blocoVideo(a.video, `Melhores lances — ${a.nome}`, true)}
-    <p class="video__rodape"><a class="link-seta" href="https://www.youtube.com/watch?v=${a.video.id}" target="_blank" rel="noopener">Assistir no YouTube ${icone.externo}</a></p>`
-        : `<div class="video video--vazio"><p>O vídeo com os melhores lances será publicado em breve.<br>Solicite o material completo à G&amp;F.</p></div>`
+        ? `${blocoVideo(a.video, `${t.melhoresLances} — ${a.nome}`, a, idioma, true)}
+    <p class="video__rodape"><a class="link-seta" href="https://www.youtube.com/watch?v=${a.video.id}" target="_blank" rel="noopener"${evento('Abriu vídeo no YouTube', a, idioma)}>${esc(t.assistirYoutube)} ${icone.externo}</a></p>`
+        : `<div class="video video--vazio"><p>${esc(t.videoEmBreve)}<br>${esc(t.videoSolicite)}</p></div>`
     }
     ${
       a.videosExtras.length
         ? `<div class="videos-extras">
       ${a.videosExtras
-        .map((v) => `<figure>${blocoVideo(v, `${v.titulo} — ${a.nome}`)}<figcaption>${esc(v.titulo)}</figcaption></figure>`)
+        .map((v) => {
+          const titulo = v.titulo || t.videoExtra;
+          return `<figure>${blocoVideo(v, `${titulo} — ${a.nome}`, a, idioma)}<figcaption>${esc(titulo)}</figcaption></figure>`;
+        })
         .join('\n      ')}
     </div>`
         : ''
@@ -661,50 +781,78 @@ function paginaAtleta(a, versoes) {
   </div>
 </section>`;
 
+  const secaoGaleria = a.imagens.galeria.length
+    ? `
+<section class="secao secao--galeria" aria-labelledby="titulo-galeria">
+  <div class="container">
+    <div class="secao__cabeca">
+      <p class="sobretitulo">${esc(t.fotos)}</p>
+      <h2 id="titulo-galeria" class="secao__titulo">${esc(t.galeria)}</h2>
+    </div>
+    <ul class="galeria" data-galeria>
+      ${a.imagens.galeria
+        .map(
+          (g, i) =>
+            `<li><button type="button" class="galeria__item" data-foto="${raiz}atletas/${a.slug}/${g.grande}" aria-label="${esc(`${t.ampliar} ${i + 1}`)}"${evento('Abriu foto', a, idioma)}><img src="${raiz}atletas/${a.slug}/${g.mini}" alt="${esc(`${t.fotoDe(a.nome)} (${i + 1})`)}" width="600" height="600" loading="lazy" decoding="async"></button></li>`,
+        )
+        .join('\n      ')}
+    </ul>
+  </div>
+</section>
+<dialog class="visor" data-visor aria-label="${esc(t.galeria)}">
+  <img class="visor__imagem" data-visor-imagem alt="">
+  <p class="visor__contador" data-visor-contador></p>
+  <button type="button" class="visor__botao visor__botao--fechar" data-visor-fechar aria-label="${esc(t.fechar)}">${icone.fechar}</button>
+  <button type="button" class="visor__botao visor__botao--anterior" data-visor-anterior aria-label="${esc(t.anterior)}">${icone.anterior}</button>
+  <button type="button" class="visor__botao visor__botao--proxima" data-visor-proxima aria-label="${esc(t.proxima)}">${icone.proxima}</button>
+</dialog>`
+    : '';
+
   const conteudo = `
-${a.exemplo ? '<div class="faixa-exemplo">Perfil de exemplo: substitua pelos dados de um atleta real ou apague esta pasta.</div>' : ''}
+${a.exemplo ? `<div class="faixa-exemplo">${esc(t.faixaExemplo)}</div>` : ''}
 <div class="so-impressao impressao-topo">
   <img src="${raiz}assets/logo-gf.png" alt="" width="40" height="40">
-  <span><strong>G&amp;F Assessoria</strong> · Ficha de atleta</span>
+  <span><strong>G&amp;F Assessoria</strong> · ${esc(t.fichaAtleta)}</span>
   <span>${esc(urlPerfil.replace(/^https?:\/\//, ''))}</span>
 </div>
 <section class="perfil">
   <div class="container perfil__grade">
     <figure class="perfil__foto">
-      ${imagemAtleta(a, imagens, 'grande', raiz, 'width="1080" height="1350" fetchpriority="high"')}
+      ${imagemAtleta(a, 'grande', raiz, idioma, 'width="1080" height="1350" fetchpriority="high"')}
     </figure>
     <div class="perfil__info">
-      ${seloCategoria(a) ? `<p class="sobretitulo">${seloCategoria(a)}</p>` : ''}
+      ${categoria ? `<p class="sobretitulo">${esc(categoria)}</p>` : ''}
       <h1 class="perfil__nome">${esc(a.nome)}</h1>
       ${posicoes ? `<p class="perfil__posicao">${esc(posicoes)}</p>` : ''}
-      ${numeros.length ? `<dl class="numeros">${numeros.map(([r, v]) => `<div><dt>${r}</dt><dd>${v}</dd></div>`).join('')}</dl>` : ''}
+      ${numeros.length ? `<dl class="numeros">${numeros.map(([r, v]) => `<div><dt>${esc(r)}</dt><dd>${v}</dd></div>`).join('')}</dl>` : ''}
       ${
-        clube || a.situacao
+        clube || situacao
           ? `<ul class="perfil__status">
-        ${clube ? `<li><span>${rotuloClube}</span><strong>${esc(clube)}</strong></li>` : ''}
-        ${a.situacao ? `<li><span>Situação</span><strong>${esc(a.situacao)}</strong></li>` : ''}
+        ${clube ? `<li><span>${esc(rotuloClube)}</span><strong>${esc(clube)}</strong></li>` : ''}
+        ${situacao ? `<li><span>${esc(t.situacao)}</span><strong>${esc(situacao)}</strong></li>` : ''}
       </ul>`
           : ''
       }
       <div class="perfil__acoes">
-        <a class="botao botao--ouro" href="#video">${icone.play}<span>Assistir aos melhores lances</span></a>
-        <a class="botao botao--contorno" href="${esc(whats)}" target="_blank" rel="noopener">${icone.whatsapp}<span>Falar com a G&amp;F</span></a>
+        <a class="botao botao--ouro" href="#video">${icone.play}<span>${esc(t.assistir)}</span></a>
+        <a class="botao botao--contorno" href="${esc(whats)}" target="_blank" rel="noopener"${evento('WhatsApp G&F', a, idioma)}>${icone.whatsapp}<span>${esc(t.falarGF)}</span></a>
       </div>
       <div class="perfil__utilidades">
-        ${botoesEnvio(a, true)}
-        <button type="button" class="botao-texto" data-imprimir>${icone.imprimir}<span>Baixar ficha em PDF</span></button>
-        ${a.instagram ? `<a class="botao-texto" href="${esc(linkInstagram(a.instagram))}" target="_blank" rel="noopener">${icone.instagram}<span>Instagram</span></a>` : ''}
+        ${botoesEnvio(a, idioma, true)}
+        <button type="button" class="botao-texto" data-imprimir${evento('Baixou PDF', a, idioma)}>${icone.imprimir}<span>${esc(t.baixarPdf)}</span></button>
+        ${a.instagram ? `<a class="botao-texto" href="${esc(linkInstagram(a.instagram))}" target="_blank" rel="noopener"${evento('Abriu Instagram', a, idioma)}>${icone.instagram}<span>Instagram</span></a>` : ''}
       </div>
     </div>
   </div>
 </section>
 ${secaoVideo}
+${secaoGaleria}
 
 <section class="secao secao--papel" aria-labelledby="titulo-ficha">
   <div class="container detalhes">
     <div class="detalhes__ficha">
-      <p class="sobretitulo">Dados</p>
-      <h2 id="titulo-ficha" class="secao__titulo">Ficha técnica</h2>
+      <p class="sobretitulo">${esc(t.dados)}</p>
+      <h2 id="titulo-ficha" class="secao__titulo">${esc(t.fichaTecnica)}</h2>
       <dl class="ficha">
           ${ficha}
       </dl>
@@ -712,10 +860,11 @@ ${secaoVideo}
     </div>
     <div class="detalhes__historia">
       ${
-        a.historia
-          ? `<p class="sobretitulo">História</p>
-      <h2 class="secao__titulo">Sobre ${esc(primeiroNome)}</h2>
-      <div class="texto-historia">${a.historia}</div>`
+        historia
+          ? `<p class="sobretitulo">${esc(t.historia)}</p>
+      <h2 class="secao__titulo">${esc(t.sobre(primeiroNome))}</h2>
+      <div class="texto-historia"${historiaOriginal ? ' lang="pt-BR"' : ''}>${historia}</div>
+      ${historiaOriginal ? `<p class="nota-idioma">${esc(t.textoOriginal)}</p>` : ''}`
           : ''
       }
       ${estatisticas}
@@ -727,39 +876,46 @@ ${secaoVideo}
 <section class="secao contato-atleta" aria-labelledby="titulo-contato-atleta">
   <div class="container contato-atleta__grade">
     <div>
-      <p class="sobretitulo">Contato</p>
-      <h2 id="titulo-contato-atleta" class="secao__titulo">Interesse em ${esc(primeiroNome)}?</h2>
-      <p>Fale com a G&amp;F Assessoria para receber jogos completos, documentação e informações contratuais.</p>
+      <p class="sobretitulo">${esc(t.contato)}</p>
+      <h2 id="titulo-contato-atleta" class="secao__titulo">${esc(t.interesse(primeiroNome))}</h2>
+      <p>${esc(t.textoContato)}</p>
     </div>
     <div class="contato-atleta__acoes">
-      <a class="botao botao--ouro" href="${esc(whats)}" target="_blank" rel="noopener">${icone.whatsapp}<span>WhatsApp ${esc(config.whatsapp_exibicao)}</span></a>
-      <a class="botao botao--contorno" href="mailto:${esc(config.email)}?subject=${encodeURIComponent(`Interesse: ${a.nome}`)}&amp;body=${encodeURIComponent(`Olá, G&F!\n\nGostaria de mais informações sobre ${a.nome}.\n${urlPerfil}\n\nClube:\nContato:`)}">E-mail</a>
+      <a class="botao botao--ouro" href="${esc(whats)}" target="_blank" rel="noopener"${evento('WhatsApp G&F', a, idioma)}>${icone.whatsapp}<span>WhatsApp ${esc(config.whatsapp_exibicao)}</span></a>
+      <a class="botao botao--contorno" href="mailto:${esc(config.email)}?subject=${encodeURIComponent(t.emailAssunto(a.nome))}&amp;body=${encodeURIComponent(t.emailCorpo(a.nome, urlPerfil))}"${evento('E-mail G&F', a, idioma)}>${esc(t.email)}</a>
     </div>
   </div>
 </section>
 
+<nav class="barra-fixa" aria-label="${esc(t.acoesRapidas)}">
+  <a class="botao botao--contorno" href="#video">${icone.play}<span>${esc(t.video)}</span></a>
+  <a class="botao botao--ouro" href="${esc(whats)}" target="_blank" rel="noopener"${evento('WhatsApp G&F', a, idioma)}>${icone.whatsapp}<span>${esc(t.falarGF)}</span></a>
+</nav>
+
 <div class="so-impressao impressao-rodape">
-  ${a.video ? `<p><strong>Melhores lances:</strong> https://youtu.be/${a.video.id}</p>` : ''}
-  <p><strong>Perfil completo:</strong> ${esc(urlPerfil)}</p>
-  <p><strong>G&amp;F Assessoria</strong> · WhatsApp ${esc(config.whatsapp_exibicao)} · ${esc(config.email)} · Intermediário registrado na CBF</p>
+  ${a.video ? `<p><strong>${esc(t.melhoresLances)}:</strong> https://youtu.be/${a.video.id}</p>` : ''}
+  <p><strong>${esc(t.perfilCompleto)}:</strong> ${esc(urlPerfil)}</p>
+  <p><strong>G&amp;F Assessoria</strong> · WhatsApp ${esc(config.whatsapp_exibicao)} · ${esc(config.email)} · ${esc(t.intermediario)}</p>
 </div>`;
 
-  const idadeTxt = a.idade ? `${a.idade} anos` : '';
   const descricao =
-    a.resumo ||
-    [posicoes, idadeTxt, clube].filter(Boolean).join(' · ') + '. Vídeo com os melhores lances, ficha técnica e trajetória.';
+    (idioma === 'pt' && a.resumo) ||
+    [posicoes, a.idade ? `${a.idade} ${t.anos}` : '', clube].filter(Boolean).join(' · ') + '. ' + t.descricaoAtleta;
 
   return pagina({
-    titulo: `${a.nome}${a.posicao ? ` · ${a.posicao}` : ''} · ${config.nome}`,
+    idioma,
+    titulo: `${a.nome}${posicao ? ` · ${posicao}` : ''} · ${config.nome}`,
     descricao,
-    caminho: `atletas/${a.slug}/`,
+    caminho,
     raiz,
-    ogImagem: imagens.og,
+    ogImagem: a.imagens.og,
     noindex: a.exemplo || !a.listar,
     tipo: 'profile',
     classe: 'pagina-atleta',
     textoWhats,
     isolado: true,
+    rel: `atletas/${a.slug}/`,
+    atleta: a,
     conteudo,
     versoes,
   });
@@ -770,13 +926,23 @@ function pagina404(versoes) {
   const conteudo = `
 <section class="secao erro">
   <div class="container container--estreito">
-    <p class="sobretitulo">Erro 404</p>
+    <p class="sobretitulo">404</p>
     <h1 class="secao__titulo">Página não encontrada</h1>
-    <p>O endereço pode ter mudado ou o perfil não está mais disponível.</p>
+    <p>O endereço pode ter mudado ou o perfil não está mais disponível.<br><span lang="en">Page not found.</span> · <span lang="es">Página no encontrada.</span></p>
     <a class="botao botao--ouro" href="${BASE}">Ir para o portfólio</a>
   </div>
 </section>`;
-  return pagina({ titulo: `Página não encontrada · ${config.nome}`, descricao: config.descricao, caminho: '404.html', raiz: BASE, noindex: true, conteudo, versoes });
+  return pagina({
+    idioma: 'pt',
+    titulo: `Página não encontrada · ${config.nome}`,
+    descricao: UI.pt.descricaoSite,
+    caminho: '404.html',
+    raiz: BASE,
+    noindex: true,
+    rel: null,
+    conteudo,
+    versoes,
+  });
 }
 
 // ---------------------------------------------------------------- execução
@@ -806,16 +972,25 @@ if (sharp) {
 const atletas = await lerAtletas();
 for (const atleta of atletas) {
   atleta.imagens = await prepararImagens(atleta);
-  await writeFile(path.join(DIST, 'atletas', atleta.slug, 'index.html'), paginaAtleta(atleta, versoes));
-  console.log(`  ✓ ${atleta.nome}${atleta.exemplo ? ' (exemplo)' : ''}${atleta.listar ? '' : ' (não listado)'} → atletas/${atleta.slug}/`);
+  for (const idioma of IDIOMAS) {
+    const pasta = path.join(DIST, prefixo(idioma), 'atletas', atleta.slug);
+    await mkdir(pasta, { recursive: true });
+    await writeFile(path.join(pasta, 'index.html'), paginaAtleta(atleta, idioma, versoes));
+  }
+  const notas = [atleta.exemplo && 'exemplo', !atleta.listar && 'só por link', atleta.galeria.length && `${atleta.galeria.length} foto(s) na galeria`].filter(Boolean);
+  console.log(`  ✓ ${atleta.nome}${notas.length ? ` (${notas.join(', ')})` : ''} → atletas/${atleta.slug}/`);
 }
 
-await writeFile(path.join(DIST, 'index.html'), paginaInicial(atletas, versoes));
+for (const idioma of IDIOMAS) {
+  await mkdir(path.join(DIST, prefixo(idioma)), { recursive: true });
+  await writeFile(path.join(DIST, prefixo(idioma), 'index.html'), paginaInicial(atletas, idioma, versoes));
+}
 await writeFile(path.join(DIST, '404.html'), pagina404(versoes));
 await writeFile(path.join(DIST, '.nojekyll'), '');
 
 if (config.url) {
-  const urls = ['', ...atletas.filter((a) => a.listar && !a.exemplo).map((a) => `atletas/${a.slug}/`)];
+  const publicos = atletas.filter((a) => a.listar && !a.exemplo);
+  const urls = IDIOMAS.flatMap((l) => [prefixo(l), ...publicos.map((a) => `${prefixo(l)}atletas/${a.slug}/`)]);
   await writeFile(
     path.join(DIST, 'sitemap.xml'),
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls
@@ -825,5 +1000,5 @@ if (config.url) {
   await writeFile(path.join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${absoluta('sitemap.xml')}\n`);
 }
 
-console.log(`Pronto: ${atletas.length} atleta(s) em ${((Date.now() - inicio) / 1000).toFixed(1)}s → dist/`);
+console.log(`Pronto: ${atletas.length} atleta(s) em ${IDIOMAS.length} idiomas, ${((Date.now() - inicio) / 1000).toFixed(1)}s → dist/`);
 if (avisos.length) console.log(`${avisos.length} aviso(s) acima — confira.`);

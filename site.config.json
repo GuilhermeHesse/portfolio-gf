@@ -1,10 +1,11 @@
 {
   "nome": "G&F Assessoria",
-  "titulo": "Portfólio de Atletas",
-  "descricao": "Portfólio de atletas da G&F Assessoria: vídeo com os melhores lances, ficha técnica e trajetória de cada atleta.",
   "url": "https://guilhermehesse.github.io/portfolio-gf",
   "whatsapp": "5531998886452",
   "whatsapp_exibicao": "+55 (31) 99888-6452",
   "email": "contatoassessoriagf@outlook.com",
-  "aviso_rodape": "Dados e imagens publicados com autorização dos atletas e, no caso de menores de idade, de seus responsáveis legais."
+  "umami": {
+    "id": "",
+    "dominios": "guilhermehesse.github.io,portfoliogf.com.br"
+  }
 }

@@ -4,63 +4,116 @@ Portfólio das atletas e dos atletas da G&F, feito para enviar a clubes. Cada at
 
 Cada perfil reúne:
 
-- foto em destaque;
+- foto principal e galeria de fotos;
 - vídeo do YouTube com os melhores lances;
 - ficha técnica;
 - história, trajetória, números e conquistas;
 - botão de WhatsApp para o clube falar com a G&F;
 - ficha em PDF de uma página.
 
-- **Endereço final:** https://portfoliogf.com.br (depois de configurar o DNS, veja a seção 4)
+O site existe em **português, inglês e espanhol**.
+
+- **Endereço final:** https://portfoliogf.com.br (depois de configurar o DNS, seção 6)
 - **Endereço provisório:** https://guilhermehesse.github.io/portfolio-gf/
+- **Painel de edição:** https://app.pagescms.org
 
 ---
 
 ## 1. Enviar o perfil de um atleta para um clube
 
-Abra o portfólio. No cartão do atleta, há dois botões ao lado de "Ver perfil":
+No portfólio, cada cartão tem dois botões ao lado de "Ver perfil":
 
-- 🔗 **Copiar link:** copia o endereço do perfil (ex.: `portfoliogf.com.br/atletas/maria-eduarda-silva/`) para colar no WhatsApp, no e-mail ou onde precisar.
-- **WhatsApp:** abre o WhatsApp com a mensagem pronta para você escolher o contato do clube. A mensagem é: *"Olá! Segue o perfil da atleta Maria Eduarda (Volante, Sub-20), apresentado pela G&F Assessoria: link"*.
+- 🔗 **Copiar link:** copia o endereço do perfil para colar no WhatsApp, no e-mail ou onde precisar.
+- **WhatsApp:** abre o WhatsApp com a mensagem pronta. Você só escolhe o contato do clube.
 
-Os mesmos botões aparecem dentro do perfil, junto com "Baixar ficha em PDF".
+**Clube do exterior:** troque o idioma no topo do site (PT · EN · ES) antes de copiar ou enviar. O link e a mensagem saem no idioma escolhido, por exemplo `portfoliogf.com.br/en/atletas/nome/`.
 
 Na página do perfil:
 
-- não há menu, nem link para a lista ou para outros atletas;
+- não há menu nem link para outros atletas;
 - o clube vê só aquele atleta e o botão "Falar com a G&F";
-- quando o link é enviado pelo WhatsApp, a prévia mostra a foto do atleta com a logo da G&F.
+- o seletor de idioma leva apenas ao mesmo atleta em outra língua;
+- a prévia no WhatsApp mostra a foto do atleta com a logo da G&F.
 
-**Perfil só por link:** para um atleta que não deve aparecer na página inicial (negociação sigilosa, por exemplo), use `listar: não` na ficha. O perfil continua funcionando pelo link direto, não aparece na lista e não é indexado pelo Google. Para pegar o link, use o endereço `.../atletas/nome-da-pasta/`.
+## 2. Painel de edição (cadastrar atletas, fotos e vídeos)
 
-## 2. Cadastrar um atleta novo (pelo navegador, sem instalar nada)
+O painel é o **Pages CMS**: gratuito, com formulários em português e ligado a este repositório. Tudo o que se salva lá entra no site em 1 a 2 minutos.
 
-1. Abra o repositório no GitHub e entre na pasta **`atletas`**.
-2. Clique em **Add file → Create new file**.
-3. No campo do nome, digite o nome da pasta, uma barra e `ficha.md`. Exemplo: `maria-eduarda-silva/ficha.md`. Use só letras minúsculas, sem acento, com hífens: esse nome vira o endereço do perfil.
-4. Copie o conteúdo de [`atletas/_MODELO/ficha.md`](atletas/_MODELO/ficha.md), cole e preencha. Linhas com `#` são instruções e não aparecem no site.
-5. Clique em **Commit changes** para salvar.
-6. Entre na pasta que você criou, clique em **Add file → Upload files** e envie a foto com o nome **`foto.jpg`**.
+### 2.1 Primeiro acesso do administrador (uma vez)
 
-Em 1 a 2 minutos o perfil aparece no site. Para acompanhar, abra a aba **Actions**: o ✓ verde quer dizer que o site já foi publicado.
+1. Entre em https://app.pagescms.org e clique para entrar com o **GitHub**, usando a conta **GuilhermeHesse**.
+2. Autorize o aplicativo **Pages CMS** apenas no repositório **portfolio-gf**.
+3. Abra o repositório **portfolio-gf**. Aparece a seção **Atletas**.
 
-**Editar:** abra o `ficha.md` do atleta, clique no lápis ✏️, altere e salve.
-**Tirar do ar:** troque para `publicar: não` ou apague a pasta.
+### 2.2 Cadastrar ou editar um atleta
 
-> Os três perfis `exemplo-…` são fictícios. Apague essas pastas quando cadastrar os atletas reais.
+1. Em **Atletas**, crie uma entrada nova ou clique em um atleta existente.
+2. Preencha os campos (cada um tem uma explicação embaixo).
+3. Envie as fotos direto nos campos "Foto principal" e "Galeria de fotos".
+4. Cole o link do YouTube no campo do vídeo.
+5. Salve.
 
-## 3. Dicas de foto e vídeo
+- **Só por link:** a opção "Mostrar só por link" tira o atleta da página inicial, mas o link direto continua funcionando. Serve para uma negociação sigilosa, por exemplo.
+- **Fora do ar:** a opção "Rascunho" tira o perfil do ar sem apagar os dados.
 
-- **Foto:** de preferência vertical, com boa luz, rosto visível e uniforme ou roupa esportiva. O site corta e comprime a foto sozinho. Se o recorte ficar ruim, use `foco: topo` (ou `centro`/`baixo`) na ficha.
-- **Vídeo:** suba no YouTube como **Não listado** e cole o link no campo `video:`. Qualquer formato de link funciona. Confira em *YouTube Studio → Detalhes → Mostrar mais* se a opção **Permitir incorporação** está marcada.
-- **Vídeos extras** (jogo completo, etc.): use a lista `videos:`, no formato `Título | link`.
+### 2.3 Dar acesso aos funcionários
 
-## 4. Ligar o domínio portfoliogf.com.br (Registro.br)
+1. No painel, abra o repositório e vá à área de **colaboradores** (Collaborators).
+2. Convide o funcionário pelo **e-mail** dele.
+3. Ele recebe um convite e entra pelo próprio e-mail. **Não precisa ter conta no GitHub.**
+4. Para tirar o acesso, remova o e-mail na mesma área. O acesso é cortado na hora.
 
-Faça uma única vez, no painel do [Registro.br](https://registro.br):
+**O que o funcionário pode fazer:** cadastrar e editar atletas e enviar fotos.
 
-1. Entre em **portfoliogf.com.br → DNS → Editar zona**.
-2. Adicione os registros abaixo. Deixe o campo "nome" vazio para o domínio principal:
+**O que ele não pode fazer:** mexer no visual ou no código do site, mudar a configuração do painel ou convidar outras pessoas. Isso fica só com o administrador (a conta GitHub da G&F).
+
+Toda alteração fica registrada no histórico do GitHub, com quem fez, quando e o que mudou, e pode ser desfeita. Para desfazer, peça ao Claude.
+
+## 3. Idiomas
+
+**Traduzido automaticamente** (inglês e espanhol):
+
+- textos do site;
+- posição, pé dominante, modalidade e categoria;
+- nacionalidade;
+- datas;
+- situações no formato "Contrato até 12/2026" ou "Livre para negociação";
+- rótulos de números comuns (Jogos, Gols, Assistências).
+
+**Para traduzir:** a **história** e as **conquistas** têm campos próprios em inglês e espanhol no painel. Se ficarem em branco, a versão estrangeira mostra o texto em português com o aviso "texto original em português". Peça ao Claude para traduzir, se quiser.
+
+## 4. Contador de visitas (quem abriu cada perfil)
+
+O site já registra:
+
+- **visitas por perfil**;
+- **cliques importantes**: "Assistiu ao vídeo", "WhatsApp G&F", "Baixou PDF", "Copiou link" e "Abriu foto", sempre com o nome do atleta e o idioma.
+
+Para começar a ver os números:
+
+1. Crie uma conta gratuita em https://umami.is (Umami Cloud, plano **Hobby**).
+2. Adicione um site com o domínio `portfoliogf.com.br`.
+3. Copie o **Website ID**, uma sequência como `a1b2c3d4-…`.
+4. Coloque o ID em `site.config.json`, no campo `"umami": { "id": "…" }`, ou passe ao Claude.
+
+No painel do Umami:
+
+- **Pages:** visitas de cada perfil (`/atletas/nome/`).
+- **Events:** os cliques, com o nome do atleta.
+
+O Umami não usa cookies, então não precisa de aviso de cookies (LGPD).
+
+**Não contar as visitas da equipe:** em cada navegador e celular da equipe, abra o site uma vez com `?nao-contar` no fim do endereço (ex.: `portfoliogf.com.br/?nao-contar`). Para voltar a contar, use `?contar`.
+
+## 5. Dicas de foto e vídeo
+
+- **Foto principal:** vertical, com boa luz, rosto visível e uniforme ou roupa esportiva. O site corta e comprime sozinho. Se o rosto ficar cortado, ajuste o campo "Recorte da foto".
+- **Galeria:** até 8 fotos de jogo ou treino.
+- **Vídeo:** suba no YouTube como **Não listado** e cole o link. Confira em *YouTube Studio → Detalhes → Mostrar mais* se a opção **Permitir incorporação** está marcada.
+
+## 6. Ligar o domínio portfoliogf.com.br (Registro.br)
+
+Faça uma única vez, no painel do [Registro.br](https://registro.br), em **portfoliogf.com.br → DNS → Editar zona**. Deixe o campo "nome" vazio para o domínio principal:
 
 | Tipo  | Nome  | Valor |
 |-------|-------|-------|
@@ -74,16 +127,15 @@ Faça uma única vez, no painel do [Registro.br](https://registro.br):
 | AAAA  | *(vazio)* | 2606:50c0:8003::153 |
 | CNAME | www   | guilhermehesse.github.io. |
 
-3. Salve. A propagação leva de alguns minutos a algumas horas.
-4. Depois disso, peça ao Claude para:
-   - ligar o domínio no GitHub (**Settings → Pages → Custom domain** e **Enforce HTTPS**);
-   - trocar `"url"` em `site.config.json` para `https://portfoliogf.com.br`.
+Depois de salvar, peça ao Claude para:
 
-**portifoliogf.com.br** (com "i"): para ele levar ao domínio principal, configure no Registro.br os mesmos registros da tabela, mas com o CNAME `www` apontando também para `guilhermehesse.github.io.`. O Claude cria uma pequena página de redirecionamento para esse domínio.
+- ligar o domínio no GitHub (com HTTPS);
+- trocar o `"url"` em `site.config.json`;
+- fazer o `portifoliogf.com.br` (com "i") redirecionar para o domínio principal.
 
-## 5. Ver o site no computador antes de publicar (opcional)
+## 7. Ver o site no computador antes de publicar (opcional)
 
-Precisa do [Node.js](https://nodejs.org) instalado. Na pasta do projeto:
+Precisa do [Node.js](https://nodejs.org). Na pasta do projeto:
 
 ```bash
 npm install
@@ -92,23 +144,21 @@ npm run dev
 
 O comando `npm run build` mostra avisos se alguma ficha estiver com problema, como data inválida, link do YouTube não reconhecido ou foto ausente.
 
-## 6. Contatos
-
-WhatsApp, e-mail e o aviso do rodapé ficam em [`site.config.json`](site.config.json).
-
-## 7. Privacidade (importante)
+## 8. Privacidade (importante)
 
 Publique dados e imagens só com **autorização por escrito** do atleta e, se for menor de 18 anos, dos **pais ou responsáveis** (LGPD, art. 14, e ECA). Para menores, avalie não informar a cidade de nascimento e não colocar o Instagram pessoal.
 
-**Atenção:** este repositório é **público**, exigência do GitHub gratuito para hospedar sites. Tudo o que estiver nas fichas, inclusive em perfis com `listar: não` ou `publicar: não`, pode ser lido por quem abrir o repositório. Não coloque aqui dados sigilosos, como valores de contrato, documentos ou telefones da família.
+**Atenção:** este repositório é **público**, exigência do GitHub gratuito para hospedar sites. Tudo o que estiver nas fichas, inclusive em perfis "só por link" ou em rascunho, pode ser lido por quem abrir o repositório. Não coloque aqui dados sigilosos, como valores de contrato, documentos ou telefones da família.
 
 ## Estrutura
 
 ```
-atletas/              uma pasta por atleta: ficha.md + foto.jpg
-atletas/_MODELO/      ficha-modelo comentada (não vai para o site)
-site.config.json      contatos e textos gerais
-src/                  visual do site (styles.css), interações (app.js) e logo
+atletas/              um arquivo por atleta (nome-do-atleta.md), editado pelo painel
+fotos/                fotos enviadas pelo painel
+.pages.yml            formulários do painel de edição (o que os funcionários podem editar)
+site.config.json      contatos, endereço do site e contador de visitas
+src/                  visual (styles.css), interações (app.js) e logo
 scripts/build.mjs     gera o site em dist/ a partir das fichas
+scripts/idiomas.mjs   textos em PT/EN/ES e traduções automáticas
 BRIEFING.md           conceito e requisitos do projeto
 ```

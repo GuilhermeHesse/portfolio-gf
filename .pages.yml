@@ -1,0 +1,306 @@
+# Painel de edição do portfólio — Pages CMS (https://app.pagescms.org)
+# Administrador: a conta GitHub GuilhermeHesse. Funcionários entram por convite de e-mail
+# e só editam o que está definido aqui (atletas e fotos), sem acesso ao código do site.
+# Cada alteração salva vira um registro no GitHub (quem, quando, o quê) e pode ser desfeita.
+
+media:
+  input: fotos
+  output: /fotos
+  rename: safe
+  categories: [image]
+
+settings:
+  commit:
+    identity: user
+
+content:
+  - name: atletas
+    label: Atletas
+    type: collection
+    path: atletas
+    format: yaml-frontmatter
+    filename:
+      template: "{nome}.md"
+      field: create
+    exclude: [README.md]
+    view:
+      fields: [nome, posicao, categoria, categoria_idade, so_link]
+      primary: nome
+      sort: [ordem, nome]
+      search: [nome, nome_completo, posicao, clube_atual]
+      default:
+        sort: ordem
+        order: asc
+    fields:
+      # ------------------------------------------------ identificação
+      - name: nome
+        label: Nome esportivo
+        type: string
+        required: true
+        description: Como o atleta é conhecido. Também vira o endereço do perfil (ex. portfoliogf.com.br/atletas/maria-eduarda).
+      - name: nome_completo
+        label: Nome completo
+        type: string
+      - name: foto
+        label: Foto principal
+        type: image
+        description: De preferência vertical, com boa luz e o rosto visível. O site corta e comprime sozinho.
+      - name: foco
+        label: Recorte da foto
+        type: select
+        description: Use só se o rosto ficar cortado. Em branco = automático.
+        options:
+          values: [topo, centro, baixo]
+      - name: categoria
+        label: Modalidade
+        type: select
+        required: true
+        options:
+          values: [Feminino, Masculino]
+      - name: categoria_idade
+        label: Categoria
+        type: select
+        options:
+          values: [Sub-11, Sub-13, Sub-14, Sub-15, Sub-16, Sub-17, Sub-18, Sub-20, Sub-21, Sub-23, Profissional]
+      - name: posicao
+        label: Posição
+        type: select
+        required: true
+        description: As posições desta lista são traduzidas automaticamente para inglês e espanhol.
+        options:
+          values:
+            - Goleira
+            - Goleiro
+            - Zagueira
+            - Zagueiro
+            - Lateral-direita
+            - Lateral-direito
+            - Lateral-esquerda
+            - Lateral-esquerdo
+            - Ala
+            - Volante
+            - Meia central
+            - Meia
+            - Meia-atacante
+            - Ponta-direita
+            - Ponta-esquerda
+            - Ponta
+            - Atacante
+            - Centroavante
+            - Segundo atacante
+      - name: posicao_secundaria
+        label: Posição secundária
+        type: select
+        options:
+          values:
+            - Goleira
+            - Goleiro
+            - Zagueira
+            - Zagueiro
+            - Lateral-direita
+            - Lateral-direito
+            - Lateral-esquerda
+            - Lateral-esquerdo
+            - Ala
+            - Volante
+            - Meia central
+            - Meia
+            - Meia-atacante
+            - Ponta-direita
+            - Ponta-esquerda
+            - Ponta
+            - Atacante
+            - Centroavante
+            - Segundo atacante
+
+      # ------------------------------------------------ dados físicos e pessoais
+      - name: nascimento
+        label: Data de nascimento
+        type: date
+        description: A idade é calculada automaticamente.
+      - name: altura
+        label: Altura (m)
+        type: string
+        description: "Ex.: 1,65"
+      - name: peso
+        label: Peso (kg)
+        type: string
+        description: "Ex.: 58"
+      - name: pe_dominante
+        label: Pé dominante
+        type: select
+        options:
+          values: [Destra, Destro, Canhota, Canhoto, Ambidestra, Ambidestro]
+      - name: naturalidade
+        label: Naturalidade
+        type: string
+        description: "Cidade – UF. Ex.: Belo Horizonte – MG"
+      - name: nacionalidade
+        label: Nacionalidade
+        type: string
+        description: "Ex.: Brasileira"
+      - name: passaporte
+        label: Passaporte / cidadania
+        type: string
+        description: "Só se tiver dupla cidadania. Ex.: Brasileiro e italiano"
+
+      # ------------------------------------------------ clube e situação
+      - name: clube_atual
+        label: Clube atual
+        type: string
+        description: "Ex.: Democrata – MG. Se estiver sem clube, deixe em branco e preencha o último clube."
+      - name: ultimo_clube
+        label: Último clube
+        type: string
+      - name: situacao
+        label: Situação contratual
+        type: string
+        description: "Ex.: Contrato até 12/2026 ou Livre para negociação (esses dois formatos são traduzidos sozinhos)."
+      - name: situacao_en
+        label: Situação contratual (inglês, opcional)
+        type: string
+      - name: situacao_es
+        label: Situação contratual (espanhol, opcional)
+        type: string
+
+      # ------------------------------------------------ vídeos e fotos
+      - name: video
+        label: Vídeo dos melhores lances (link do YouTube)
+        type: string
+        description: Suba no YouTube como "Não listado" e cole o link aqui.
+      - name: videos
+        label: Vídeos extras
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{titulo}"
+        fields:
+          - name: titulo
+            label: Título
+            type: string
+            description: "Ex.: Jogo completo vs. Clube X"
+          - name: url
+            label: Link do YouTube
+            type: string
+      - name: galeria
+        label: Galeria de fotos
+        type: image
+        description: Até 8 fotos de jogo ou treino.
+        options:
+          multiple:
+            max: 8
+          unique: true
+
+      # ------------------------------------------------ carreira
+      - name: trajetoria
+        label: Trajetória (mais recente primeiro)
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{periodo} · {clube}"
+        fields:
+          - name: periodo
+            label: Período
+            type: string
+            description: "Ex.: 2024 – atual"
+          - name: clube
+            label: Clube
+            type: string
+          - name: detalhe
+            label: Detalhe
+            type: string
+            description: "Ex.: Sub-20"
+      - name: conquistas
+        label: Conquistas e destaques
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{ano} · {titulo}"
+        fields:
+          - name: ano
+            label: Ano
+            type: string
+          - name: titulo
+            label: Conquista
+            type: string
+          - name: titulo_en
+            label: Conquista em inglês (opcional)
+            type: string
+          - name: titulo_es
+            label: Conquista em espanhol (opcional)
+            type: string
+      - name: estatisticas
+        label: Números
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{rotulo}: {valor}"
+        fields:
+          - name: rotulo
+            label: Rótulo
+            type: string
+            description: "Ex.: Jogos, Gols, Assistências, Defesas"
+          - name: valor
+            label: Valor
+            type: string
+          - name: obs
+            label: Observação
+            type: string
+            description: "Ex.: Temporada 2025"
+      - name: extras
+        label: Outros dados da ficha
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{rotulo}"
+        fields:
+          - name: rotulo
+            label: Rótulo
+            type: string
+            description: "Ex.: Escolaridade"
+          - name: valor
+            label: Valor
+            type: string
+
+      # ------------------------------------------------ história
+      - name: body
+        label: História (português)
+        type: text
+        description: 2 a 4 parágrafos curtos, separados por uma linha em branco. O primeiro aparece em destaque.
+      - name: historia_en
+        label: História em inglês (opcional)
+        type: text
+        description: Se ficar em branco, a versão em inglês mostra o texto em português.
+      - name: historia_es
+        label: História em espanhol (opcional)
+        type: text
+      - name: resumo
+        label: Resumo para a prévia do link (opcional)
+        type: string
+        description: Uma frase que aparece na prévia do WhatsApp e do Google.
+      - name: instagram
+        label: Instagram do atleta (opcional)
+        type: string
+        description: "Ex.: @usuario. Para menores de idade, prefira deixar em branco."
+
+      # ------------------------------------------------ publicação
+      - name: so_link
+        label: Mostrar só por link
+        type: boolean
+        description: Marcado = o perfil some da página inicial, mas o link direto continua funcionando.
+      - name: rascunho
+        label: Rascunho (fora do ar)
+        type: boolean
+        description: Marcado = o perfil não é publicado.
+      - name: ordem
+        label: Ordem na lista
+        type: number
+        description: Menor aparece primeiro.
+      - name: exemplo
+        type: boolean
+        hidden: true
