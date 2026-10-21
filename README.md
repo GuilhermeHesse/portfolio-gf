@@ -91,6 +91,8 @@ Publique dados e imagens só com **autorização por escrito** do atleta e, se f
 - não colocar o Instagram pessoal;
 - usar `listar: não`, enviando o link só aos clubes interessados.
 
+**Atenção:** este repositório é **público**, exigência do GitHub gratuito para hospedar sites. Tudo o que estiver nas fichas, inclusive em perfis com `listar: não` ou `publicar: não`, pode ser lido por quem abrir o repositório. Não coloque aqui dados sigilosos, como valores de contrato, documentos ou telefones da família.
+
 ## Estrutura
 
 ```
