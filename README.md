@@ -39,11 +39,17 @@ Na página do perfil:
 
 O painel é o **Pages CMS**: gratuito, com formulários em português e ligado a este repositório. Tudo o que se salva lá entra no site em 1 a 2 minutos.
 
-### 2.1 Primeiro acesso do administrador (uma vez)
+### 2.1 Primeiro acesso do administrador (uma vez — já feito)
 
-1. Entre em https://app.pagescms.org e clique para entrar com o **GitHub**, usando a conta **GuilhermeHesse**.
+1. Entre em https://app.pagescms.org e clique em **"Sign in with GitHub"**, usando a conta **GuilhermeHesse**.
 2. Autorize o aplicativo **Pages CMS** apenas no repositório **portfolio-gf**.
 3. Abra o repositório **portfolio-gf**. Aparece a seção **Atletas**.
+
+O menu lateral (ícone no canto superior esquerdo) tem:
+
+- **Atletas** (Content): a lista e os formulários.
+- **Media:** as fotos enviadas.
+- **Admin:** os convites (Collaborators) e a configuração. Só o administrador vê.
 
 ### 2.2 Cadastrar ou editar um atleta
 
@@ -58,10 +64,11 @@ O painel é o **Pages CMS**: gratuito, com formulários em português e ligado a
 
 ### 2.3 Dar acesso aos funcionários
 
-1. No painel, abra o repositório e vá à área de **colaboradores** (Collaborators).
-2. Convide o funcionário pelo **e-mail** dele.
-3. Ele recebe um convite e entra pelo próprio e-mail. **Não precisa ter conta no GitHub.**
-4. Para tirar o acesso, remova o e-mail na mesma área. O acesso é cortado na hora.
+1. No menu lateral, vá em **Admin → Collaborators** e clique em **"Invite a collaborator"**.
+2. Digite o **e-mail** do funcionário e confirme.
+3. O funcionário recebe um convite por e-mail. **Não precisa ter conta no GitHub.**
+4. Para entrar, ele abre https://app.pagescms.org, clica em **"Continue with email"**, usa o mesmo e-mail do convite e confirma pelo link que chega na caixa de entrada.
+5. Para tirar o acesso, remova o e-mail na mesma tela Collaborators. O acesso é cortado na hora.
 
 **O que o funcionário pode fazer:** cadastrar e editar atletas e enviar fotos.
 
