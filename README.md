@@ -77,7 +77,7 @@ O menu lateral (ícone no canto superior esquerdo) tem:
 2. Digite o **e-mail** do funcionário e confirme.
 3. O funcionário recebe um convite por e-mail. **Não precisa ter conta no GitHub.**
 4. Para entrar, ele abre https://app.pagescms.org, clica em **"Continue with email"**, usa o mesmo e-mail do convite e confirma pelo link que chega na caixa de entrada.
-5. Para tirar o acesso, remova o e-mail na mesma tela Collaborators. O acesso é cortado na hora.
+5. Na lista de Collaborators, os três pontinhos ao lado de cada e-mail têm **"Resend invitation"** (reenviar o convite) e **"Remove"** (tirar o acesso na hora).
 
 **O que o funcionário pode fazer:** cadastrar e editar atletas e enviar fotos.
 
