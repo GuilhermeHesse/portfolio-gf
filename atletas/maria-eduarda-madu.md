@@ -7,7 +7,9 @@ categoria: Feminino
 categoria_idade: Profissional
 posicao: Goleira
 nascimento: 2007-06-03
-pe_dominante: Destra
+altura: 1,72
+peso: "72"
+pe_dominante: Ambidestra
 nacionalidade: Brasileira
 clube_atual: Flamengo de São Pedro / Gurias do Yucumã
 ultimo_clube: Flamengo de São Pedro / Gurias do Yucumã
@@ -22,6 +24,25 @@ galeria:
   - /fotos/whatsapp-image-2026-10-22-at-092503.jpeg
   - /fotos/whatsapp-image-2026-10-22-at-092504-1.jpeg
   - /fotos/whatsapp-image-2026-10-22-at-092504.jpeg
+trajetoria:
+  - clube: Ação - MT
+    detalhe: Sub 20
+  - clube: Flamengo de São Pedro
+    detalhe: Profissional
+  - clube: Centro Olímpico
+    detalhe: Sub 20
+  - clube: Red Bull Bragantino
+    detalhe: Sub 20
+  - clube: Atlhetico Paranaense
+    detalhe: Profissional
+  - clube: Portuguesa
+    detalhe: Sub 20
+  - clube: São Paulo
+    detalhe: Sub 20
+conquistas:
+  - titulo: 3 taças cidade São Paulo
+  - titulo: paulista sub17 -2023
+  - titulo: "campeão do interior sub 20 "
 instagram: madu_duarte.12
 so_link: false
 rascunho: false
