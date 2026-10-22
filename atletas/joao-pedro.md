@@ -14,9 +14,7 @@ nacionalidade: Brasileiro
 clube_atual: Rio Branco Paraná
 ultimo_clube: Rio Branco Paraná
 video: https://youtu.be/6oi2_8ZGoGQ
-extras:
-  - rotulo: TRANSFERMARKT LINK
-    valor: https://www.transfermarkt.com.br/joao-pedro/profil/spieler/1219233
+transfermarkt: https://www.transfermarkt.com.br/joao-pedro/profil/spieler/1219233
 so_link: true
 rascunho: false
 exemplo: false
