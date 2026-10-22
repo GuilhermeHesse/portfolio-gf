@@ -351,21 +351,26 @@ async function lerAtletas() {
 
 const POSICAO_FOCO = { topo: 'north', centro: 'centre', baixo: 'south' };
 
+// "?v=" muda quando a foto (ou o recorte) muda: navegadores e WhatsApp buscam a nova em vez de usar a guardada
+const versaoImagem = async (origem, extra = '') => `?v=${hash(Buffer.concat([await readFile(origem), Buffer.from(extra)])).slice(0, 8)}`;
+
 async function prepararImagens(atleta) {
   const destino = path.join(DIST, 'atletas', atleta.slug);
   await mkdir(destino, { recursive: true });
   const imagens = { card: null, grande: null, og: 'assets/og-gf.jpg', galeria: [] };
+  const vFoto = atleta.foto ? await versaoImagem(atleta.foto, atleta.foco) : '';
+  const vGaleria = await Promise.all(atleta.galeria.map((origem) => versaoImagem(origem)));
 
   if (!sharp) {
     if (atleta.foto) {
       const nome = 'foto' + path.extname(atleta.foto).toLowerCase();
       await copyFile(atleta.foto, path.join(destino, nome));
-      Object.assign(imagens, { card: nome, grande: nome, og: `atletas/${atleta.slug}/${nome}` });
+      Object.assign(imagens, { card: nome + vFoto, grande: nome + vFoto, og: `atletas/${atleta.slug}/${nome}${vFoto}` });
     }
     for (const [i, origem] of atleta.galeria.entries()) {
       const nome = `galeria-${i + 1}${path.extname(origem).toLowerCase()}`;
       await copyFile(origem, path.join(destino, nome));
-      imagens.galeria.push({ grande: nome, mini: nome });
+      imagens.galeria.push({ grande: nome + vGaleria[i], mini: nome + vGaleria[i] });
     }
     return imagens;
   }
@@ -381,14 +386,14 @@ async function prepararImagens(atleta) {
     // Imagem de prévia (WhatsApp, redes): foto à direita, logo G&F à esquerda
     const fotoOg = await base().resize(520, 630, { fit: 'cover', position }).toBuffer();
     await gerarCartaoOg(fotoOg, path.join(destino, 'compartilhar.jpg'));
-    Object.assign(imagens, { card: 'foto-card.webp', grande: 'foto.webp', og: `atletas/${atleta.slug}/compartilhar.jpg` });
+    Object.assign(imagens, { card: 'foto-card.webp' + vFoto, grande: 'foto.webp' + vFoto, og: `atletas/${atleta.slug}/compartilhar.jpg${vFoto}` });
   }
 
   for (const [i, origem] of atleta.galeria.entries()) {
     const n = i + 1;
     await sharp(origem).rotate().resize(1600, 1600, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 82 }).toFile(path.join(destino, `galeria-${n}.webp`));
     await sharp(origem).rotate().resize(600, 600, { fit: 'cover', position: sharp.strategy.attention }).webp({ quality: 78 }).toFile(path.join(destino, `galeria-${n}-mini.webp`));
-    imagens.galeria.push({ grande: `galeria-${n}.webp`, mini: `galeria-${n}-mini.webp` });
+    imagens.galeria.push({ grande: `galeria-${n}.webp${vGaleria[i]}`, mini: `galeria-${n}-mini.webp${vGaleria[i]}` });
   }
   return imagens;
 }
