@@ -1,5 +1,5 @@
 ---
-nome: 'MARIA EDUARDA "MADU" '
+nome: 'Maria Eduarda "MADU" '
 nome_completo: MARIA EDUARDA PEREIRA DE FREITAS DUARTE
 foto: /fotos/1-2.jpg
 foco: centro
