@@ -1,7 +1,7 @@
 ---
 nome: "Nikelly Oleinik "
 nome_completo: Nikelly Oleinik Fermino
-foto: /fotos/whatsapp-image-2026-10-22-at-095108.jpeg
+foto: /fotos/atleta-do-parana-clube-em-retrato.png
 foco: centro
 categoria: Feminino
 categoria_idade: Sub-17
