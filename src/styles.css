@@ -1843,6 +1843,10 @@ select {
     box-shadow: 0 -10px 30px rgba(20, 20, 20, 0.08);
   }
 
+  .barra-fixa--unica {
+    grid-template-columns: 1fr;
+  }
+
   .barra-fixa .botao {
     min-height: 48px;
     padding: 0 12px;

@@ -878,8 +878,8 @@ ${a.exemplo ? `<div class="faixa-exemplo">${esc(t.faixaExemplo)}</div>` : ''}
           : ''
       }
       <div class="perfil__acoes">
-        <a class="botao botao--ouro" href="#video">${icone.play}<span>${esc(t.assistir)}</span></a>
-        <a class="botao botao--contorno" href="${esc(whats)}" target="_blank" rel="noopener"${evento('WhatsApp G&F', a, idioma)}>${icone.whatsapp}<span>${esc(t.falarGF)}</span></a>
+        ${a.video ? `<a class="botao botao--ouro" href="#video">${icone.play}<span>${esc(t.assistir)}</span></a>` : ''}
+        <a class="botao ${a.video ? 'botao--contorno' : 'botao--ouro'}" href="${esc(whats)}" target="_blank" rel="noopener"${evento('WhatsApp G&F', a, idioma)}>${icone.whatsapp}<span>${esc(t.falarGF)}</span></a>
       </div>
       <div class="perfil__utilidades">
         ${botoesEnvio(a, idioma, true)}
@@ -931,8 +931,8 @@ ${secaoGaleria}
   </div>
 </section>
 
-<nav class="barra-fixa" aria-label="${esc(t.acoesRapidas)}">
-  <a class="botao botao--contorno" href="#video">${icone.play}<span>${esc(t.video)}</span></a>
+<nav class="barra-fixa${a.video ? '' : ' barra-fixa--unica'}" aria-label="${esc(t.acoesRapidas)}">
+  ${a.video ? `<a class="botao botao--contorno" href="#video">${icone.play}<span>${esc(t.video)}</span></a>` : ''}
   <a class="botao botao--ouro" href="${esc(whats)}" target="_blank" rel="noopener"${evento('WhatsApp G&F', a, idioma)}>${icone.whatsapp}<span>${esc(t.falarGF)}</span></a>
 </nav>
 
