@@ -1,6 +1,6 @@
 # Portfólio de Atletas · G&F Assessoria
 
-Portfólio das atletas e dos atletas da G&F, feito para enviar a clubes. Cada atleta tem um **perfil próprio e isolado**: o clube abre o link e cai direto naquele perfil, sem acesso aos outros atletas.
+Portfólio das atletas e dos atletas da G&F, feito para enviar a clubes. Cada atleta tem um **perfil próprio**: o clube abre o link e cai direto naquele perfil. Se quiser, clica na logo G&F e vê o portfólio completo.
 
 Cada perfil reúne:
 
@@ -29,7 +29,7 @@ No portfólio, cada cartão tem dois botões ao lado de "Ver perfil":
 
 Na página do perfil:
 
-- não há menu nem link para outros atletas;
+- não há menu; a logo G&F, no canto superior esquerdo, leva à página inicial do portfólio (no mesmo idioma);
 - o clube vê só aquele atleta e o botão "Falar com a G&F";
 - o seletor de idioma leva apenas ao mesmo atleta em outra língua;
 - a prévia no WhatsApp mostra a foto do atleta com a logo da G&F.
@@ -37,6 +37,11 @@ Na página do perfil:
 ## 2. Painel de edição (cadastrar atletas, fotos e vídeos)
 
 O painel é o **Pages CMS**: gratuito, com formulários em português e ligado a este repositório. Tudo o que se salva lá entra no site em 1 a 2 minutos.
+
+**Entrada pelo site:** https://portfoliogf.com.br/entrar/, ou pelo link "Área da equipe" no rodapé, com o botão **Fazer login**.
+
+- **Administrador (GuilhermeHesse):** na tela de login, escolha **"Sign in with GitHub"**. Só assim aparece o menu Admin, onde se autorizam as outras contas.
+- **Equipe autorizada:** escolhe "Continue with email" e usa o e-mail convidado.
 
 ### 2.1 Primeiro acesso do administrador (uma vez — já feito)
 

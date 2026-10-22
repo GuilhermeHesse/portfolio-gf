@@ -1441,6 +1441,59 @@ select {
   font-size: 12px;
 }
 
+.rodape__equipe {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.rodape__equipe:hover {
+  color: var(--ouro-claro);
+  border-color: currentColor;
+}
+
+/* ------------------------------------------------------------ área da equipe (login) */
+
+.entrar {
+  min-height: 78vh;
+  display: grid;
+  align-items: center;
+  padding: calc(var(--altura-topo) + 48px) 0 72px;
+  background:
+    radial-gradient(50% 70% at 50% 0%, rgba(211, 173, 56, 0.16), transparent 70%),
+    var(--fundo);
+}
+
+.entrar__cartao {
+  max-width: 520px;
+  margin-inline: auto;
+  padding: clamp(32px, 6vw, 56px);
+  border: 1px solid var(--linha);
+  border-top: 3px solid var(--ouro);
+  border-radius: var(--raio);
+  background: var(--superficie);
+  box-shadow: var(--sombra-forte);
+  text-align: center;
+}
+
+.entrar__logo {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 20px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+}
+
+.entrar__texto {
+  margin: 16px 0 28px;
+  color: var(--tinta-2);
+}
+
+.entrar__botao {
+  min-width: 220px;
+}
+
 /* ------------------------------------------------------------ 404 e avisos */
 
 .erro {

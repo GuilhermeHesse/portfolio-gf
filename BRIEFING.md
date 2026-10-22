@@ -7,13 +7,13 @@ Documento de referência do site, para orientar qualquer evolução futura. Pode
 - **É** o portfólio de atletas da G&F Assessoria: uma vitrine das atletas e dos atletas, usada para oferecê-los a clubes.
 - **Não é** um site de apresentação da empresa. Não há história da G&F, slogans, foto dos sócios nem seções institucionais. A G&F aparece só como marca (logo e cores) e como contato.
 
-## Função principal: perfil isolado
+## Função principal: perfil enviado a um clube
 
 O uso mais importante é enviar **o perfil de um único atleta** a um clube:
 
 - Cada atleta tem um endereço próprio (`portfoliogf.com.br/atletas/<nome>/`).
 - O clube que recebe o link cai direto no perfil e lê todas as informações daquele atleta.
-- A página do perfil **não tem** menu, link "voltar" nem qualquer link para a lista ou para outros atletas.
+- A página do perfil não tem menu. A logo G&F (canto superior esquerdo) leva à página inicial do portfólio, no mesmo idioma, para o clube ver os outros atletas se quiser.
 - Na lista, cada cartão tem "Copiar link" e "Enviar pelo WhatsApp" (mensagem pronta para o clube). Os mesmos botões aparecem dentro do perfil.
 - Prévia do link no WhatsApp: foto do atleta + logo G&F.
 - Atletas podem ficar fora da lista (opção "Mostrar só por link"), acessíveis apenas pelo link direto.
@@ -26,6 +26,8 @@ Referência de conteúdo: currículo de atleta em página única (ex.: curriculo
 - Os funcionários entram por convite de e-mail, sem conta no GitHub, e o administrador pode revogar o acesso a qualquer momento.
 - Os funcionários editam apenas atletas, fotos e vídeos (formulários definidos em `.pages.yml`). Não mexem em código, visual ou configuração, nem convidam outras pessoas.
 - Toda alteração fica no histórico do GitHub e pode ser desfeita.
+
+- Entrada da equipe pelo próprio site: `/entrar/` (link "Área da equipe" no rodapé), com um único botão "Fazer login" que leva ao painel.
 
 ## Idiomas e métricas
 

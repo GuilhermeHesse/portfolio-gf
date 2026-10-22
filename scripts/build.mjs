@@ -464,15 +464,16 @@ function seletorIdioma(idioma, raiz, rel) {
   ).join('')}</nav>`;
 }
 
-// isolado = página de um atleta enviada sozinha ao clube: a marca não leva para a lista dos outros atletas
-function topoHtml({ idioma, raiz, textoWhats, isolado, rel, atleta }) {
+// A marca G&F leva sempre à página inicial do portfólio, no mesmo idioma
+function topoHtml({ idioma, raiz, textoWhats, rel, atleta }) {
   const t = UI[idioma];
-  const marca = `<img class="marca__logo" src="${raiz}assets/logo-gf.png" alt="" width="52" height="52">
-      <span class="marca__texto"><strong>G&amp;F Assessoria</strong><small>${esc(t.subtituloMarca)}</small></span>`;
   const inicio = raiz + prefixo(idioma) || './';
   return `<header class="topo" data-topo>
   <div class="container topo__interno">
-    ${isolado ? `<div class="marca">${marca}</div>` : `<a class="marca" href="${inicio}" aria-label="G&amp;F Assessoria — ${esc(t.subtituloMarca)}">${marca}</a>`}
+    <a class="marca" href="${inicio}" title="${esc(t.irInicio)}" aria-label="G&amp;F Assessoria — ${esc(t.irInicio)}">
+      <img class="marca__logo" src="${raiz}assets/logo-gf.png" alt="" width="52" height="52">
+      <span class="marca__texto"><strong>G&amp;F Assessoria</strong><small>${esc(t.subtituloMarca)}</small></span>
+    </a>
     <div class="topo__acoes">
       ${seletorIdioma(idioma, raiz, rel)}
       <a class="botao botao--ouro botao--pequeno" href="${esc(linkWhatsApp(textoWhats))}" target="_blank" rel="noopener"${evento('WhatsApp G&F', atleta, idioma)}>${icone.whatsapp}<span>${esc(t.falarGF)}</span></a>
@@ -495,20 +496,20 @@ function rodapeHtml({ idioma, raiz, textoWhats, atleta }) {
     </ul>
   </div>
   <div class="container rodape__base">
-    <span>© <span data-ano>${HOJE.getFullYear()}</span> G&amp;F Assessoria</span>
+    <span>© <span data-ano>${HOJE.getFullYear()}</span> G&amp;F Assessoria · <a class="rodape__equipe" href="${raiz}entrar/">${esc(t.areaEquipe)}</a></span>
     <span>${esc(t.avisoRodape)}</span>
   </div>
 </footer>
 <div class="toast" role="status" aria-live="polite" data-toast></div>`;
 }
 
-function pagina({ idioma, titulo, descricao, caminho, raiz, ogImagem = 'assets/og-gf.jpg', noindex = false, tipo, classe = '', textoWhats, isolado = false, rel = '', atleta = null, conteudo, versoes }) {
+function pagina({ idioma, titulo, descricao, caminho, raiz, ogImagem = 'assets/og-gf.jpg', noindex = false, tipo, classe = '', textoWhats, rel = '', atleta = null, conteudo, versoes }) {
   const t = UI[idioma];
   const whats = textoWhats || t.whatsGeral;
   return `${cabecalhoHtml({ idioma, titulo, descricao, caminho, raiz, ogImagem, noindex, tipo, rel, versoes })}
 <body class="${classe}">
 <a class="pular" href="#conteudo">${esc(t.pular)}</a>
-${topoHtml({ idioma, raiz, textoWhats: whats, isolado, rel, atleta })}
+${topoHtml({ idioma, raiz, textoWhats: whats, rel, atleta })}
 <main id="conteudo">
 ${conteudo}
 </main>
@@ -913,9 +914,37 @@ ${secaoGaleria}
     tipo: 'profile',
     classe: 'pagina-atleta',
     textoWhats,
-    isolado: true,
     rel: `atletas/${a.slug}/`,
     atleta: a,
+    conteudo,
+    versoes,
+  });
+}
+
+// Área da equipe: um único "Fazer login", que leva ao painel de edição (Pages CMS).
+// Quem autoriza cada pessoa é o administrador, dentro do painel (Admin → Collaborators).
+function paginaEntrar(versoes) {
+  const conteudo = `
+<section class="entrar">
+  <div class="container container--estreito">
+    <div class="entrar__cartao">
+      <img class="entrar__logo" src="../assets/logo-gf.png" alt="" width="88" height="88">
+      <p class="sobretitulo">Área da equipe</p>
+      <h1 class="secao__titulo">Portfólio G&amp;F</h1>
+      <p class="entrar__texto">Acesso restrito à equipe da G&amp;F Assessoria para cadastrar e atualizar atletas, fotos, vídeos e informações.</p>
+      <a class="botao botao--ouro entrar__botao" href="${esc(config.painel)}">Fazer login</a>
+    </div>
+  </div>
+</section>`;
+  return pagina({
+    idioma: 'pt',
+    titulo: `Área da equipe · ${config.nome}`,
+    descricao: 'Acesso restrito à equipe da G&F Assessoria.',
+    caminho: 'entrar/',
+    raiz: '../',
+    noindex: true,
+    rel: null,
+    classe: 'pagina-entrar',
     conteudo,
     versoes,
   });
@@ -986,6 +1015,8 @@ for (const idioma of IDIOMAS) {
   await writeFile(path.join(DIST, prefixo(idioma), 'index.html'), paginaInicial(atletas, idioma, versoes));
 }
 await writeFile(path.join(DIST, '404.html'), pagina404(versoes));
+await mkdir(path.join(DIST, 'entrar'), { recursive: true });
+await writeFile(path.join(DIST, 'entrar', 'index.html'), paginaEntrar(versoes));
 await writeFile(path.join(DIST, '.nojekyll'), '');
 
 if (config.url) {
