@@ -222,7 +222,14 @@ const EXT_IMAGEM = /\.(jpe?g|png|webp|avif)$/i;
 function caminhoImagem(valor, dir, rotulo) {
   const v = texto(valor);
   if (!v) return null;
-  const caminho = v.startsWith('/') ? path.join(RAIZ, decodeURI(v)) : path.join(dir, v);
+  // Nomes enviados pelo GitHub podem ter espaço, acento ou "%" (ex.: "Sem título.jpg")
+  let decodificado = v;
+  try {
+    decodificado = decodeURI(v);
+  } catch {
+    // "%" solto no nome: usa o texto como está
+  }
+  const caminho = v.startsWith('/') ? path.join(RAIZ, decodificado) : path.join(dir, decodificado);
   if (existsSync(caminho)) return caminho;
   aviso(`${rotulo}: imagem "${v}" não encontrada.`);
   return null;

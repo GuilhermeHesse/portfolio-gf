@@ -125,6 +125,10 @@ O Umami não usa cookies, então não precisa de aviso de cookies (LGPD).
 
 - **Foto principal:** vertical, com boa luz, rosto visível e uniforme ou roupa esportiva. O site corta e comprime sozinho. Se o rosto ficar cortado, ajuste o campo "Recorte da foto".
 - **Galeria:** até 8 fotos de jogo ou treino.
+- **Várias fotos de uma vez:** o painel tem um defeito: ao enviar várias fotos juntas, elas chegam ao GitHub ao mesmo tempo, entram em conflito e dão erro. No painel, envie **uma foto por vez**. Para subir muitas de uma vez (só o administrador):
+  1. Abra https://github.com/GuilhermeHesse/portfolio-gf/upload/main/fotos (logado como GuilhermeHesse).
+  2. Arraste todas as fotos e clique em **Commit changes**.
+  3. No painel, nos campos de foto, use **"Select"** para escolher as fotos que já estão na pasta.
 - **Vídeo:** suba no YouTube como **Não listado** e cole o link. Confira em *YouTube Studio → Detalhes → Mostrar mais* se a opção **Permitir incorporação** está marcada.
 
 ## 6. Domínio portfoliogf.com.br (Registro.br) — já configurado
