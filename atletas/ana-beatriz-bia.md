@@ -5,12 +5,12 @@ foto: /fotos/whatsapp-image-2026-10-22-at-102011-4.jpeg
 foco: centro
 categoria: Feminino
 categoria_idade: Profissional
-posicao: Atacante
-posicao_secundaria: Ponta
+posicao: Ponta-direita
+posicao_secundaria: Ponta-esquerda
 nascimento: 2007-07-31
 altura: 1,61
-peso: "54"
-pe_dominante: Destra
+peso: "50"
+pe_dominante: Ambidestra
 nacionalidade: Brasileira
 clube_atual: R4 Esporte Clube
 ultimo_clube: R4 Esporte Clube
