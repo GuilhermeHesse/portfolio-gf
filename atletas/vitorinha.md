@@ -1,5 +1,5 @@
 ---
-nome: Vitorinha
+nome: Aparecida Vitória "Vitorinha"
 nome_completo: Aparecida Vitória da Silva Carvalho
 foto: /fotos/whatsapp-image-2026-10-22-at-1123361.jpeg
 foco: centro
