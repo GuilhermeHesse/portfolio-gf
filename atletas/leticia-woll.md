@@ -15,6 +15,7 @@ ultimo_clube: Flamengo de São Pedro/ Gurias do Yucumã
 situacao: Vigente
 situacao_en: In effect
 situacao_es: En efecto
+video: https://youtu.be/6mkrMoIPvBc
 galeria:
   - /fotos/sem-titulo.jpg
   - /fotos/whatsapp-image-2026-10-13-at-125400-1.jpeg
