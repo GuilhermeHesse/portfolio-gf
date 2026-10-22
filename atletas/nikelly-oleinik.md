@@ -1,5 +1,5 @@
 ---
-nome: "Nikelly Oleinik "
+nome: Nikelly Oleinik
 nome_completo: Nikelly Oleinik Fermino
 foto: /fotos/atleta-do-parana-clube-em-retrato.png
 foco: centro
