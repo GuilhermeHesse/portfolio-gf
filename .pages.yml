@@ -288,6 +288,10 @@ content:
         label: Instagram do atleta (opcional)
         type: string
         description: "Ex.: @usuario. Para menores de idade, prefira deixar em branco."
+      - name: transfermarkt
+        label: Transfermarkt (opcional, atletas masculinos)
+        type: string
+        description: "Cole o link do perfil do atleta no Transfermarkt. Ex.: https://www.transfermarkt.com.br/nome-do-atleta/profil/spieler/123456. Em branco = o botão não aparece."
 
       # ------------------------------------------------ publicação
       - name: so_link

@@ -70,6 +70,7 @@ O menu lateral (ícone no canto superior esquerdo) tem:
 
 - **Só por link:** a opção "Mostrar só por link" tira o atleta da página inicial, mas o link direto continua funcionando. Serve para uma negociação sigilosa, por exemplo.
 - **Fora do ar:** a opção "Rascunho" tira o perfil do ar sem apagar os dados.
+- **Transfermarkt:** cole o link do perfil do atleta no campo "Transfermarkt" e o botão aparece no perfil, ao lado do Instagram. Em branco, o botão não aparece.
 
 ### 2.3 Dar acesso aos funcionários
 

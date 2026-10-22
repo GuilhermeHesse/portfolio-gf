@@ -49,6 +49,17 @@ const prefixo = (idioma) => (idioma === 'pt' ? '' : `${idioma}/`);
 const linkWhatsApp = (texto) => `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(texto)}`;
 const linkInstagram = (usuario) =>
   /^https?:\/\//.test(usuario) ? usuario : `https://instagram.com/${usuario.replace(/^@/, '')}`;
+// Completa o "https://" se faltar e tira marcações de rastreio (?utm_source=...) coladas junto
+function linkExterno(url) {
+  const completo = /^https?:\/\//i.test(url) ? url : `https://${url.replace(/^\/+/, '')}`;
+  try {
+    const u = new URL(completo);
+    for (const chave of [...u.searchParams.keys()]) if (chave.startsWith('utm_')) u.searchParams.delete(chave);
+    return u.toString();
+  } catch {
+    return completo;
+  }
+}
 
 // Cliques registrados no contador de visitas (Umami): aparecem como eventos por atleta
 const evento = (nome, atleta, idioma) =>
@@ -324,6 +335,7 @@ async function lerAtletas() {
       situacao: { pt: t('situacao'), en: t('situacao_en'), es: t('situacao_es') },
       resumo: t('resumo'),
       instagram: t('instagram'),
+      transfermarkt: t('transfermarkt') ? linkExterno(t('transfermarkt')) : '',
       video: idVideo ? { id: idVideo } : null,
       videosExtras,
       trajetoria: itens(dados.trajetoria, ['clube', 'periodo'], (p) =>
@@ -897,6 +909,7 @@ ${a.exemplo ? `<div class="faixa-exemplo">${esc(t.faixaExemplo)}</div>` : ''}
         ${botoesEnvio(a, idioma, true)}
         <button type="button" class="botao-texto" data-imprimir${evento('Baixou PDF', a, idioma)}>${icone.imprimir}<span>${esc(t.baixarPdf)}</span></button>
         ${a.instagram ? `<a class="botao-texto" href="${esc(linkInstagram(a.instagram))}" target="_blank" rel="noopener"${evento('Abriu Instagram', a, idioma)}>${icone.instagram}<span>Instagram</span></a>` : ''}
+        ${a.transfermarkt ? `<a class="botao-texto" href="${esc(a.transfermarkt)}" target="_blank" rel="noopener"${evento('Abriu Transfermarkt', a, idioma)}>${icone.externo}<span>Transfermarkt</span></a>` : ''}
       </div>
     </div>
   </div>
