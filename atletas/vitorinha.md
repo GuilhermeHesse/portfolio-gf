@@ -9,7 +9,7 @@ posicao: Meia
 nascimento: 2007-04-19
 altura: 1,61
 peso: "54"
-pe_dominante: Destro
+pe_dominante: Destra
 nacionalidade: Brasileiraa
 clube_atual: R4 Esporte Clube
 situacao: Livre para negociações
