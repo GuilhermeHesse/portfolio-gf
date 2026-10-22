@@ -30,6 +30,7 @@ try {
 } catch {
   aviso('Pacote "sharp" não encontrado: as fotos serão copiadas sem otimização. Rode "npm install" para otimizar.');
 }
+const LOGO_SITE = sharp ? 'logo-gf.webp' : 'logo-gf.png';
 
 // ---------------------------------------------------------------- utilidades
 
@@ -445,9 +446,8 @@ ${canonica ? `<meta property="og:url" content="${esc(canonica)}">\n` : ''}<meta 
 <link rel="icon" href="${raiz}assets/favicon.ico" sizes="32x32">
 <link rel="icon" href="${raiz}assets/favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="${raiz}assets/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="preload" href="${raiz}assets/fontes/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="${raiz}assets/fontes/cormorant-garamond-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${raiz}styles.css?v=${versoes.css}">
 <script defer src="${raiz}app.js?v=${versoes.js}"></script>
 ${umami}</head>`;
@@ -471,12 +471,12 @@ function topoHtml({ idioma, raiz, textoWhats, rel, atleta }) {
   return `<header class="topo" data-topo>
   <div class="container topo__interno">
     <a class="marca" href="${inicio}" title="${esc(t.irInicio)}" aria-label="G&amp;F Assessoria — ${esc(t.irInicio)}">
-      <img class="marca__logo" src="${raiz}assets/logo-gf.png" alt="" width="52" height="52">
+      <img class="marca__logo" src="${raiz}assets/${LOGO_SITE}" alt="" width="52" height="52">
       <span class="marca__texto"><strong>G&amp;F Assessoria</strong><small>${esc(t.subtituloMarca)}</small></span>
     </a>
     <div class="topo__acoes">
       ${seletorIdioma(idioma, raiz, rel)}
-      <a class="botao botao--ouro botao--pequeno" href="${esc(linkWhatsApp(textoWhats))}" target="_blank" rel="noopener"${evento('WhatsApp G&F', atleta, idioma)}>${icone.whatsapp}<span>${esc(t.falarGF)}</span></a>
+      <a class="botao botao--ouro botao--pequeno" href="${esc(linkWhatsApp(textoWhats))}" target="_blank" rel="noopener" aria-label="${esc(t.falarGF)}"${evento('WhatsApp G&F', atleta, idioma)}>${icone.whatsapp}<span>${esc(t.falarGF)}</span></a>
     </div>
   </div>
 </header>`;
@@ -487,7 +487,7 @@ function rodapeHtml({ idioma, raiz, textoWhats, atleta }) {
   return `<footer class="rodape" id="contato">
   <div class="container rodape__interno">
     <div class="rodape__marca">
-      <img src="${raiz}assets/logo-gf.png" alt="" width="44" height="44" loading="lazy">
+      <img src="${raiz}assets/${LOGO_SITE}" alt="" width="44" height="44" loading="lazy">
       <span><strong>G&amp;F Assessoria</strong><small>${esc(t.rodapeMarca)}</small></span>
     </div>
     <ul class="rodape__contatos">
@@ -812,7 +812,7 @@ function paginaAtleta(a, idioma, versoes) {
   const conteudo = `
 ${a.exemplo ? `<div class="faixa-exemplo">${esc(t.faixaExemplo)}</div>` : ''}
 <div class="so-impressao impressao-topo">
-  <img src="${raiz}assets/logo-gf.png" alt="" width="40" height="40">
+  <img src="${raiz}assets/${LOGO_SITE}" alt="" width="40" height="40">
   <span><strong>G&amp;F Assessoria</strong> · ${esc(t.fichaAtleta)}</span>
   <span>${esc(urlPerfil.replace(/^https?:\/\//, ''))}</span>
 </div>
@@ -928,7 +928,7 @@ function paginaEntrar(versoes) {
 <section class="entrar">
   <div class="container container--estreito">
     <div class="entrar__cartao">
-      <img class="entrar__logo" src="../assets/logo-gf.png" alt="" width="88" height="88">
+      <img class="entrar__logo" src="../assets/${LOGO_SITE}" alt="" width="88" height="88">
       <p class="sobretitulo">Área da equipe</p>
       <h1 class="secao__titulo">Portfólio G&amp;F</h1>
       <p class="entrar__texto">Acesso restrito à equipe da G&amp;F Assessoria para cadastrar e atualizar atletas, fotos, vídeos e informações.</p>
@@ -990,8 +990,18 @@ await writeFile(path.join(DIST, 'styles.css'), css);
 await writeFile(path.join(DIST, 'app.js'), js);
 const versoes = { css: hash(css), js: hash(js) };
 
+// Fontes servidas pelo próprio site (mais rápido e sem enviar dados do visitante ao Google)
+await mkdir(path.join(DIST, 'assets', 'fontes'), { recursive: true });
+for (const [pacote, nome] of [['inter', 'inter'], ['cormorant-garamond', 'cormorant-garamond']]) {
+  for (const estilo of ['normal', 'italic']) {
+    const arquivo = `${nome}-latin-wght-${estilo}.woff2`;
+    await copyFile(path.join(RAIZ, 'node_modules', '@fontsource-variable', pacote, 'files', arquivo), path.join(DIST, 'assets', 'fontes', arquivo));
+  }
+}
+
 if (sharp) {
   await sharp(LOGO).resize({ width: 220 }).png({ compressionLevel: 9 }).toFile(path.join(DIST, 'assets', 'logo-gf.png'));
+  await sharp(LOGO).resize({ width: 176 }).webp({ quality: 90 }).toFile(path.join(DIST, 'assets', 'logo-gf.webp'));
   await gerarCartaoOg(null, path.join(DIST, 'assets', 'og-gf.jpg'));
 } else {
   await copyFile(LOGO, path.join(DIST, 'assets', 'logo-gf.png'));
