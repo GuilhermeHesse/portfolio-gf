@@ -1,5 +1,5 @@
 ---
-nome: LETÍCIA WOLL
+nome: "Letícia Woll "
 nome_completo: LETÍCIA ANTONELLA WOLL
 foto: /fotos/sem-titulo-3.jpg
 foco: centro
