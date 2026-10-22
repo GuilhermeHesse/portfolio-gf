@@ -164,6 +164,60 @@
     });
   }
 
+  // Painel lateral (três pontinhos do topo): atalhos e área da equipe
+  const painel = document.querySelector('[data-painel]');
+  const fundoPainel = document.querySelector('[data-painel-fundo]');
+  const botaoPainel = document.querySelector('[data-abrir-painel]');
+  if (painel && fundoPainel && botaoPainel) {
+    const aberto = () => painel.classList.contains('painel--aberto');
+    const abrir = () => {
+      painel.inert = false;
+      fundoPainel.hidden = false;
+      requestAnimationFrame(() => {
+        painel.classList.add('painel--aberto');
+        fundoPainel.classList.add('painel-fundo--visivel');
+      });
+      botaoPainel.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('painel-aberto');
+      painel.querySelector('[data-fechar-painel]').focus();
+    };
+    const fechar = () => {
+      painel.classList.remove('painel--aberto');
+      fundoPainel.classList.remove('painel-fundo--visivel');
+      botaoPainel.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('painel-aberto');
+      painel.inert = true;
+      setTimeout(() => {
+        if (!aberto()) fundoPainel.hidden = true;
+      }, 300);
+      botaoPainel.focus();
+    };
+    botaoPainel.addEventListener('click', () => (aberto() ? fechar() : abrir()));
+    painel.querySelector('[data-fechar-painel]').addEventListener('click', fechar);
+    fundoPainel.addEventListener('click', fechar);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && aberto()) fechar();
+    });
+  }
+
+  // Criar conta: mostra o formulário e envia o pedido à G&F pelo WhatsApp (o administrador libera a conta)
+  document.querySelectorAll('[data-criar-conta]').forEach((botao) => {
+    const form = botao.parentElement.querySelector('[data-form-conta]');
+    if (!form) return;
+    botao.addEventListener('click', () => {
+      form.hidden = !form.hidden;
+      botao.setAttribute('aria-expanded', String(!form.hidden));
+      if (!form.hidden) form.elements.nome.focus();
+    });
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const texto = form.dataset.mensagem
+        .replace('{nome}', form.elements.nome.value.trim())
+        .replace('{email}', form.elements.email.value.trim());
+      window.open(`https://wa.me/${form.dataset.whatsapp}?text=${encodeURIComponent(texto)}`, '_blank', 'noopener');
+    });
+  });
+
   // Entrada suave dos blocos ao rolar
   if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const alvos = document.querySelectorAll('.cartao, .detalhes > *, .video--principal, .galeria li, .contato-atleta__grade');

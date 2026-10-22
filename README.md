@@ -38,7 +38,12 @@ Na página do perfil:
 
 O painel é o **Pages CMS**: gratuito, com formulários em português e ligado a este repositório. Tudo o que se salva lá entra no site em 1 a 2 minutos.
 
-**Entrada pelo site:** https://portfoliogf.com.br/entrar/, ou pelo link "Área da equipe" no rodapé, com o botão **Fazer login**.
+**Entrada pelo site:** botão de **três pontinhos (⋮)** no canto superior direito de qualquer página. Ele abre o painel lateral com a **Área da equipe**:
+
+- **Fazer login:** abre o painel de edição.
+- **Criar conta:** a pessoa informa nome e e-mail, e o pedido chega à G&F pelo WhatsApp. O administrador libera a conta em **Admin → Collaborators**, e a pessoa recebe o convite por e-mail.
+
+A mesma área está em https://portfoliogf.com.br/entrar/ (link "Área da equipe" no rodapé).
 
 - **Administrador (GuilhermeHesse):** na tela de login, escolha **"Sign in with GitHub"**. Só assim aparece o menu Admin, onde se autorizam as outras contas.
 - **Equipe autorizada:** escolhe "Continue with email" e usa o e-mail convidado.

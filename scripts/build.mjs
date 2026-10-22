@@ -72,6 +72,8 @@ const icone = {
   instagram:
     '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.5" cy="6.5" r="1.1" fill="currentColor"/></svg>',
   fechar: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></svg>',
+  pontos: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.9" fill="currentColor"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/><circle cx="12" cy="19" r="1.9" fill="currentColor"/></svg>',
+  grade: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>',
   anterior: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m15 5-7 7 7 7"/></svg>',
   proxima: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7"/></svg>',
 };
@@ -477,6 +479,7 @@ function topoHtml({ idioma, raiz, textoWhats, rel, atleta }) {
     <div class="topo__acoes">
       ${seletorIdioma(idioma, raiz, rel)}
       <a class="botao botao--ouro botao--pequeno" href="${esc(linkWhatsApp(textoWhats))}" target="_blank" rel="noopener" aria-label="${esc(t.falarGF)}"${evento('WhatsApp G&F', atleta, idioma)}>${icone.whatsapp}<span>${esc(t.falarGF)}</span></a>
+      <button type="button" class="topo__menu" data-abrir-painel aria-controls="painel-lateral" aria-expanded="false" aria-label="${esc(t.menu)}" title="${esc(t.menu)}">${icone.pontos}</button>
     </div>
   </div>
 </header>`;
@@ -503,6 +506,45 @@ function rodapeHtml({ idioma, raiz, textoWhats, atleta }) {
 <div class="toast" role="status" aria-live="polite" data-toast></div>`;
 }
 
+// Área da equipe: "Fazer login" abre o painel de edição; "Criar conta" manda à G&F um pedido de acesso
+// pelo WhatsApp (a conta é liberada pelo administrador, em Admin → Collaborators no painel).
+function blocoEquipe(idioma) {
+  const t = UI[idioma];
+  return `<div class="equipe">
+      <a class="botao botao--ouro equipe__botao" href="${esc(config.painel)}">${esc(t.fazerLogin)}</a>
+      <button type="button" class="botao botao--contorno equipe__botao" data-criar-conta aria-expanded="false">${esc(t.criarConta)}</button>
+      <form class="equipe__form" data-form-conta data-whatsapp="${esc(config.whatsapp)}" data-mensagem="${esc(t.pedidoConta('{nome}', '{email}'))}" hidden>
+        <label class="equipe__campo"><span>${esc(t.seuNome)}</span><input type="text" name="nome" required autocomplete="name"></label>
+        <label class="equipe__campo"><span>${esc(t.seuEmail)}</span><input type="email" name="email" required autocomplete="email"></label>
+        <button type="submit" class="botao botao--ouro equipe__botao">${icone.whatsapp}<span>${esc(t.enviarPedido)}</span></button>
+        <p class="equipe__nota">${esc(t.notaConta)}</p>
+      </form>
+    </div>`;
+}
+
+// Painel lateral aberto pelos três pontinhos do topo: atalhos e área da equipe
+function painelLateral({ idioma, raiz, textoWhats }) {
+  const t = UI[idioma];
+  const inicio = raiz + prefixo(idioma) || './';
+  return `<div class="painel-fundo" data-painel-fundo hidden></div>
+<aside class="painel" id="painel-lateral" data-painel aria-label="${esc(t.menu)}" inert>
+  <div class="painel__cabeca">
+    <span class="painel__marca"><img src="${raiz}assets/${LOGO_SITE}" alt="" width="40" height="40" loading="lazy"><strong>G&amp;F Assessoria</strong></span>
+    <button type="button" class="painel__fechar" data-fechar-painel aria-label="${esc(t.fechar)}">${icone.fechar}</button>
+  </div>
+  <nav class="painel__nav" aria-label="${esc(t.atalhos)}">
+    <a href="${inicio}">${icone.grade}<span>${esc(t.tituloPortfolio)}</span></a>
+    <a href="${esc(linkWhatsApp(textoWhats))}" target="_blank" rel="noopener">${icone.whatsapp}<span>${esc(t.falarGF)}</span></a>
+    <a href="mailto:${esc(config.email)}" title="${esc(config.email)}">${icone.email}<span>${esc(t.email)}</span></a>
+  </nav>
+  <section class="painel__equipe">
+    <p class="sobretitulo">${esc(t.areaEquipe)}</p>
+    <p class="painel__texto">${esc(t.textoEquipe)}</p>
+    ${blocoEquipe(idioma)}
+  </section>
+</aside>`;
+}
+
 function pagina({ idioma, titulo, descricao, caminho, raiz, ogImagem = 'assets/og-gf.jpg', noindex = false, tipo, classe = '', textoWhats, rel = '', atleta = null, conteudo, versoes }) {
   const t = UI[idioma];
   const whats = textoWhats || t.whatsGeral;
@@ -514,6 +556,7 @@ ${topoHtml({ idioma, raiz, textoWhats: whats, rel, atleta })}
 ${conteudo}
 </main>
 ${rodapeHtml({ idioma, raiz, textoWhats: whats, atleta })}
+${painelLateral({ idioma, raiz, textoWhats: whats })}
 </body>
 </html>
 `;
@@ -931,8 +974,8 @@ function paginaEntrar(versoes) {
       <img class="entrar__logo" src="../assets/${LOGO_SITE}" alt="" width="88" height="88">
       <p class="sobretitulo">Área da equipe</p>
       <h1 class="secao__titulo">Portfólio G&amp;F</h1>
-      <p class="entrar__texto">Acesso restrito à equipe da G&amp;F Assessoria para cadastrar e atualizar atletas, fotos, vídeos e informações.</p>
-      <a class="botao botao--ouro entrar__botao" href="${esc(config.painel)}">Fazer login</a>
+      <p class="entrar__texto">${esc(UI.pt.textoEquipe)}</p>
+      ${blocoEquipe('pt')}
     </div>
   </div>
 </section>`;
