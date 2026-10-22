@@ -15,6 +15,7 @@ ultimo_clube: R4 Esporte Clube
 situacao: Livre para negociações
 situacao_en: Open to negotiations
 situacao_es: Libre para negociaciones
+video: https://youtu.be/Z8m3ULFjrSM
 galeria:
   - /fotos/whatsapp-image-2026-10-22-at-102011.jpeg
   - /fotos/whatsapp-image-2026-10-22-at-102011-2.jpeg
