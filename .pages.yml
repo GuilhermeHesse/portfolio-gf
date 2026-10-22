@@ -19,9 +19,10 @@ content:
     type: collection
     path: atletas
     format: yaml-frontmatter
-    filename:
-      template: "{nome}.md"
-      field: create
+    # O nome do arquivo (e o endereço do perfil) sai do "Nome esportivo" na hora de salvar.
+    # Não usar "field: create": nesse modo o painel monta o nome antes do campo ser preenchido
+    # e tenta salvar ".md", recusado com o erro "Invalid extension".
+    filename: "{nome}.md"
     exclude: [README.md]
     view:
       fields: [nome, posicao, categoria, categoria_idade, so_link]
