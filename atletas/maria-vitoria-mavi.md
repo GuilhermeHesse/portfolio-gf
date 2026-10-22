@@ -8,6 +8,9 @@ categoria_idade: Profissional
 posicao: Lateral-direita
 posicao_secundaria: Ponta-direita
 nascimento: 1999-09-24
+altura: "1.64"
+peso: "49"
+pe_dominante: Ambidestra
 nacionalidade: Brasileira
 clube_atual: Flamengo de São Pedro / Gurias do Yucumã
 ultimo_clube: Flamengo de São Pedro / Gurias do Yucumã
@@ -22,7 +25,26 @@ galeria:
   - /fotos/sem-titulo-6.jpg
   - /fotos/whatsapp-image-2026-10-22-at-093104.jpeg
   - /fotos/1-1.jpeg
+trajetoria:
+  - clube: Flamengo de São Pedro
+    detalhe: Profissional
+  - clube: Itacoatiara - AM
+    detalhe: Profissional
+  - clube: Sena Madureira - Acre
+    detalhe: Profissional
+  - clube: Cresspom - DF
+    detalhe: Profissional
+  - clube: Nacional - MG
+    detalhe: Profissional
+  - clube: Uberlândia
+    detalhe: Profissional
+conquistas:
+  - ano: "2022"
+    titulo: "acesso A3 pelo Uberlândia "
+  - ano: "2024"
+    titulo: acesso A3 pelo Cresspom
 so_link: false
 rascunho: false
 exemplo: false
 ---
+Jogo futebol desde dos meus 8 anos de idade. Mais não tive tantas oportunidades cedo, mas a oportunidade chegou! E hoje carrego momentos incríveis na minha história.
