@@ -47,4 +47,3 @@ so_link: false
 rascunho: false
 exemplo: false
 ---
-Jogo futebol desde dos meus 8 anos de idade. Mais não tive tantas oportunidades cedo, mas a oportunidade chegou! E hoje carrego momentos incríveis na minha história.
