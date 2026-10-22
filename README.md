@@ -13,8 +13,7 @@ Cada perfil reúne:
 
 O site existe em **português, inglês e espanhol**.
 
-- **Endereço final:** https://portfoliogf.com.br (depois de configurar o DNS, seção 6)
-- **Endereço provisório:** https://guilhermehesse.github.io/portfolio-gf/
+- **Endereço do site:** https://portfoliogf.com.br (o antigo guilhermehesse.github.io/portfolio-gf redireciona para ele)
 - **Painel de edição:** https://app.pagescms.org
 
 ---
@@ -118,9 +117,9 @@ O Umami não usa cookies, então não precisa de aviso de cookies (LGPD).
 - **Galeria:** até 8 fotos de jogo ou treino.
 - **Vídeo:** suba no YouTube como **Não listado** e cole o link. Confira em *YouTube Studio → Detalhes → Mostrar mais* se a opção **Permitir incorporação** está marcada.
 
-## 6. Ligar o domínio portfoliogf.com.br (Registro.br)
+## 6. Domínio portfoliogf.com.br (Registro.br) — já configurado
 
-Faça uma única vez, no painel do [Registro.br](https://registro.br), em **portfoliogf.com.br → DNS → Editar zona**. Deixe o campo "nome" vazio para o domínio principal:
+Configurado em 22/10/2026, com HTTPS ativo. A zona DNS está no **modo avançado** do Registro.br (**portfoliogf.com.br → DNS → Configurar zona DNS**), com estes registros. Não apague nenhum, ou o site sai do ar:
 
 | Tipo  | Nome  | Valor |
 |-------|-------|-------|
@@ -134,11 +133,9 @@ Faça uma única vez, no painel do [Registro.br](https://registro.br), em **port
 | AAAA  | *(vazio)* | 2606:50c0:8003::153 |
 | CNAME | www   | guilhermehesse.github.io. |
 
-Depois de salvar, peça ao Claude para:
+No GitHub, o domínio está em **Settings → Pages → Custom domain**, com **Enforce HTTPS** marcado.
 
-- ligar o domínio no GitHub (com HTTPS);
-- trocar o `"url"` em `site.config.json`;
-- fazer o `portifoliogf.com.br` (com "i") redirecionar para o domínio principal.
+Pendente: fazer o `portifoliogf.com.br` (com "i") redirecionar para o domínio principal. Peça ao Claude.
 
 ## 7. Ver o site no computador antes de publicar (opcional)
 
