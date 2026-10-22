@@ -14,6 +14,7 @@ ultimo_clube: Flamengo de São Pedro / Gurias do Yucumã
 situacao: Livre para negociações
 situacao_en: Open to negotiations
 situacao_es: Libre para negociaciones
+video: https://youtu.be/3Sx9DkeQcGc
 galeria:
   - /fotos/whatsapp-image-2026-10-22-at-092504-2.jpeg
   - /fotos/whatsapp-image-2026-10-22-at-092503-1.jpeg
