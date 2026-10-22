@@ -176,8 +176,10 @@ atletas/              um arquivo por atleta (nome-do-atleta.md), editado pelo pa
 fotos/                fotos enviadas pelo painel
 .pages.yml            formulários do painel de edição (o que os funcionários podem editar)
 site.config.json      contatos, endereço do site e contador de visitas
-src/                  visual (styles.css), interações (app.js) e logo
+src/                  visual (styles.css), interações (app.js), logo e foto do estádio
 scripts/build.mjs     gera o site em dist/ a partir das fichas
 scripts/idiomas.mjs   textos em PT/EN/ES e traduções automáticas
 BRIEFING.md           conceito e requisitos do projeto
 ```
+
+Foto de fundo da página inicial: estádio à noite, de Alex Simpson no Unsplash (unsplash.com/photos/DOicNPBVSHs), uso gratuito pela Licença Unsplash. O site a escurece e borra só os letreiros, anúncios e escudos do estádio (lista `MARCAS_ESTADIO` em `scripts/build.mjs`), para nenhuma marca aparecer.

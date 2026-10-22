@@ -16,6 +16,8 @@ const DIST = path.join(RAIZ, 'dist');
 const SRC = path.join(RAIZ, 'src');
 const PASTA_ATLETAS = path.join(RAIZ, 'atletas');
 const LOGO = path.join(SRC, 'assets', 'logo-gf-original.png');
+// Foto de fundo da abertura da página inicial (Alex Simpson / Unsplash, licença gratuita da Unsplash)
+const ESTADIO = path.join(SRC, 'assets', 'estadio-noite-original.jpg');
 const HOJE = new Date();
 
 const avisos = [];
@@ -468,7 +470,7 @@ ${canonica ? `<meta property="og:url" content="${esc(canonica)}">\n` : ''}<meta 
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#0d0d0d">
 <link rel="icon" href="${raiz}assets/favicon.ico" sizes="32x32">
 <link rel="icon" href="${raiz}assets/favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="${raiz}assets/apple-touch-icon.png">
@@ -1052,6 +1054,7 @@ await mkdir(path.join(DIST, 'assets'), { recursive: true });
 // Arquivos estáticos
 await cp(path.join(SRC, 'assets'), path.join(DIST, 'assets'), { recursive: true });
 await rm(path.join(DIST, 'assets', 'logo-gf-original.png'));
+await rm(path.join(DIST, 'assets', 'estadio-noite-original.jpg'));
 const css = await readFile(path.join(SRC, 'styles.css'));
 const js = await readFile(path.join(SRC, 'app.js'));
 await writeFile(path.join(DIST, 'styles.css'), css);
@@ -1067,11 +1070,43 @@ for (const [pacote, nome] of [['inter', 'inter'], ['cormorant-garamond', 'cormor
   }
 }
 
+// Letreiros e escudo do estádio na foto (coordenadas na original de 2200 px): só esses pontos
+// são borrados, com borda suave, para nenhuma marca aparecer no site
+const MARCAS_ESTADIO = [
+  { left: 1085, top: 455, width: 505, height: 105 }, // "American Express Stadium" e escudo no telhado
+  { left: 70, top: 1090, width: 520, height: 110 }, // o mesmo nome escrito na pista
+  { left: 595, top: 645, width: 90, height: 85 }, // escudo do clube na faixa da arquibancada
+  { left: 690, top: 645, width: 1510, height: 90 }, // anúncios e escudos do anel superior
+  { left: 1850, top: 600, width: 350, height: 70 }, // letreiro no alto, à direita
+  { left: 0, top: 826, width: 1150, height: 64 }, // placas de publicidade à beira do campo (esquerda)
+  { left: 1100, top: 836, width: 600, height: 66 }, // placas de publicidade à beira do campo (meio)
+  { left: 1650, top: 848, width: 550, height: 74 }, // placas de publicidade à beira do campo (direita)
+];
+
+async function gerarFotoEstadio(larguras) {
+  const { width, height } = await sharp(ESTADIO).metadata();
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><rect width="100%" height="100%" fill="#000"/>${MARCAS_ESTADIO.map(
+    (r) => `<rect x="${r.left}" y="${r.top}" width="${r.width}" height="${r.height}" rx="24" fill="#fff"/>`,
+  ).join('')}</svg>`;
+  const mascara = await sharp(Buffer.from(svg)).blur(14).greyscale().png().toBuffer();
+  const borrada = await sharp(ESTADIO).blur(18).joinChannel(mascara).png().toBuffer();
+  const limpa = await sharp(ESTADIO).composite([{ input: borrada }]).toBuffer();
+  // A foto aparece escurecida, então qualidade média basta e a página continua leve
+  for (const [largura, nome] of larguras) {
+    await sharp(limpa).resize({ width: largura }).jpeg({ quality: 72, mozjpeg: true }).toFile(path.join(DIST, 'assets', nome));
+  }
+}
+
 if (sharp) {
   await sharp(LOGO).resize({ width: 220 }).png({ compressionLevel: 9 }).toFile(path.join(DIST, 'assets', 'logo-gf.png'));
   await sharp(LOGO).resize({ width: 176 }).webp({ quality: 90 }).toFile(path.join(DIST, 'assets', 'logo-gf.webp'));
+  await gerarFotoEstadio([
+    [2000, 'estadio.jpg'],
+    [900, 'estadio-celular.jpg'],
+  ]);
   await gerarCartaoOg(null, path.join(DIST, 'assets', 'og-gf.jpg'));
 } else {
+  // Sem o sharp a foto não é tratada (os letreiros apareceriam); a abertura fica só no preto
   await copyFile(LOGO, path.join(DIST, 'assets', 'logo-gf.png'));
   await copyFile(LOGO, path.join(DIST, 'assets', 'og-gf.jpg'));
 }

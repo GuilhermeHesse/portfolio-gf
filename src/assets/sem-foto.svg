@@ -1,17 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
   <defs>
     <radialGradient id="fundo" cx="50%" cy="38%" r="75%">
-      <stop offset="0" stop-color="#f7f3e6"/>
-      <stop offset=".6" stop-color="#ecebe6"/>
-      <stop offset="1" stop-color="#e2e0d9"/>
+      <stop offset="0" stop-color="#232220"/>
+      <stop offset=".6" stop-color="#181818"/>
+      <stop offset="1" stop-color="#111111"/>
     </radialGradient>
     <linearGradient id="silhueta" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#d6d2c8"/>
-      <stop offset="1" stop-color="#c9c4b8"/>
+      <stop offset="0" stop-color="#2e2d2a"/>
+      <stop offset="1" stop-color="#252422"/>
     </linearGradient>
   </defs>
   <rect width="800" height="1000" fill="url(#fundo)"/>
   <circle cx="400" cy="380" r="120" fill="url(#silhueta)"/>
   <path d="M170 1000c0-190 103-330 230-330s230 140 230 330z" fill="url(#silhueta)"/>
-  <rect x="40" y="40" width="720" height="920" rx="18" fill="none" stroke="#a8841f" stroke-opacity=".35" stroke-width="2"/>
+  <rect x="40" y="40" width="720" height="920" rx="18" fill="none" stroke="#d3ad38" stroke-opacity=".3" stroke-width="2"/>
 </svg>
