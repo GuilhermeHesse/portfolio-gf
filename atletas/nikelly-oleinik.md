@@ -8,6 +8,8 @@ categoria_idade: Sub-17
 posicao: Lateral-esquerda
 posicao_secundaria: Ala
 nascimento: 2009-01-03
+altura: 1,70
+peso: "70"
 pe_dominante: Canhota
 naturalidade: Aracáuria/PR
 nacionalidade: Brasileira
@@ -23,6 +25,10 @@ galeria:
   - /fotos/whatsapp-image-2026-10-22-at-095109.jpeg
   - /fotos/whatsapp-image-2026-10-22-at-095154.jpeg
   - /fotos/whatsapp-image-2026-10-22-at-095155.jpeg
+conquistas:
+  - ano: "2024"
+    titulo: " campeã paranaense no Paraná clube feminino com o sub17"
+  - {}
 so_link: false
 rascunho: false
 exemplo: false
