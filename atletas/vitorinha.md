@@ -10,6 +10,7 @@ nascimento: 2007-04-19
 altura: 1,61
 peso: "54"
 pe_dominante: Destra
+naturalidade: Simões - PI
 nacionalidade: Brasileira
 clube_atual: R4 Esporte Clube
 situacao: Livre para negociações
