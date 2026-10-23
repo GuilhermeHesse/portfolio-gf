@@ -26,7 +26,7 @@ galeria:
   - /fotos/4.jpg
   - /fotos/2.jpg
 trajetoria:
-  - clube: Avaí Kinderman
+  - clube: Avaí Kindermann
 so_link: false
 rascunho: false
 exemplo: false
