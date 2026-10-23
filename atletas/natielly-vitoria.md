@@ -8,6 +8,8 @@ categoria_idade: Sub-17
 posicao: Centroavante
 posicao_secundaria: Atacante
 nascimento: 2012-05-19
+altura: 1,48
+peso: "55"
 pe_dominante: Destra
 nacionalidade: Brasileira
 clube_atual: "Avaí Kindermann "
@@ -23,6 +25,8 @@ galeria:
   - /fotos/6.jpg
   - /fotos/4.jpg
   - /fotos/2.jpg
+trajetoria:
+  - clube: Avaí Kinderman
 so_link: false
 rascunho: false
 exemplo: false
