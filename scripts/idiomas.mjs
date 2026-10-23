@@ -433,6 +433,10 @@ function termosComuns(texto, idioma) {
     .replace(/\bprofissional\b/gi, en ? 'Professional' : 'Profesional')
     .replace(/\b(atual|hoje)\b/gi, en ? 'present' : 'actualidad')
     .replace(/\btemporada (\d{4})\b/gi, (_, a) => (en ? `${a} season` : `Temporada ${a}`))
+    .replace(/\bjuvenil\b/gi, en ? 'Youth' : 'Juvenil')
+    .replace(/\bUruguai\b/g, 'Uruguay')
+    .replace(/\bParaguai\b/g, 'Paraguay')
+    .replace(/\bEquador\b/g, 'Ecuador')
     .replace(/ e /g, en ? ' and ' : ' y ');
 }
 

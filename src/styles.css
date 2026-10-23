@@ -877,9 +877,17 @@ select {
   line-height: 1.1;
 }
 
+/* Texto (pé dominante) menor que os números, para "Ambidestra" caber sem quebrar no meio */
 .numeros__texto {
-  font-size: 0.78em;
+  font-size: 0.64em;
   overflow-wrap: anywhere;
+}
+
+/* Notebooks: a coluna do texto fica estreita enquanto foto e dados estão lado a lado */
+@media (min-width: 981px) and (max-width: 1240px) {
+  .numeros__texto {
+    font-size: 0.54em;
+  }
 }
 
 .numeros small {
