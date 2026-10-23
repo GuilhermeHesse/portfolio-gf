@@ -12,7 +12,7 @@ altura: 1,62
 peso: "62"
 pe_dominante: Ambidestra
 nacionalidade: "Paraguaia "
-so_link: false
+so_link: true
 rascunho: false
 exemplo: false
 ---
