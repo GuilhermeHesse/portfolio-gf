@@ -13,6 +13,7 @@ peso: "62"
 pe_dominante: Ambidestra
 nacionalidade: "Paraguaia "
 clube_atual: Club Nacional
+video: https://youtu.be/6ev6QXij-xo
 trajetoria:
   - periodo: "2026"
     clube: Club Nacional
@@ -61,9 +62,12 @@ conquistas:
     titulo_en: Clausura runner-up with Club Cerro Porteño
     titulo_es: Vicecampeona del Clausura con Club Cerro Porteño
   - ano: "2021"
-    titulo: Vice-campeã do Apertura com o Deportivo Capiatá e classificação para a Copa Libertadores
-    titulo_en: Apertura runner-up with Deportivo Capiatá, qualifying for the Copa Libertadores
-    titulo_es: Vicecampeona del Apertura con Deportivo Capiatá y clasificación a la Copa Libertadores
+    titulo: Vice-campeã do Apertura com o Deportivo Capiatá e classificação para a
+      Copa Libertadores
+    titulo_en: Apertura runner-up with Deportivo Capiatá, qualifying for the Copa
+      Libertadores
+    titulo_es: Vicecampeona del Apertura con Deportivo Capiatá y clasificación a la
+      Copa Libertadores
   - ano: "2017"
     titulo: Campeã do Clausura com o Deportivo Capiatá
     titulo_en: Clausura champion with Deportivo Capiatá
@@ -84,14 +88,26 @@ conquistas:
     titulo: Campeã absoluta juvenil com a UAA
     titulo_en: Overall youth champion with UAA
     titulo_es: Campeona absoluta juvenil con UAA
-historia_en: |-
-  Soledad has represented Paraguay since her youth years. In 2014 she was runner-up at the South American U-20 Championship in Uruguay and played the U-20 World Cup in Canada; in 2015 she played the U-20 tournament in Brazil.
+historia_en: >-
+  Soledad has represented Paraguay since her youth years. In 2014 she was
+  runner-up at the South American U-20 Championship in Uruguay and played the
+  U-20 World Cup in Canada; in 2015 she played the U-20 tournament in Brazil.
 
-  With the senior national team, she faced the United States in a friendly (2016), played the Copa América in Chile (2018), qualifying for the Pan American Games, and played FIFA friendlies in Venezuela (2019), against Japan (2021) and against Uruguay (2022).
-historia_es: |-
-  Soledad tiene trayectoria en la Selección Paraguaya desde las categorías juveniles. En 2014 fue subcampeona del Sudamericano Sub-20 en Uruguay y disputó el Mundial Sub-20 en Canadá; en 2015 jugó el Sub-20 en Brasil.
 
-  Con la selección absoluta enfrentó a Estados Unidos en un amistoso (2016), disputó la Copa América en Chile (2018), con clasificación a los Juegos Panamericanos, y jugó amistosos FIFA en Venezuela (2019), contra Japón (2021) y contra Uruguay (2022).
+  With the senior national team, she faced the United States in a friendly
+  (2016), played the Copa América in Chile (2018), qualifying for the Pan
+  American Games, and played FIFA friendlies in Venezuela (2019), against Japan
+  (2021) and against Uruguay (2022).
+historia_es: >-
+  Soledad tiene trayectoria en la Selección Paraguaya desde las categorías
+  juveniles. En 2014 fue subcampeona del Sudamericano Sub-20 en Uruguay y
+  disputó el Mundial Sub-20 en Canadá; en 2015 jugó el Sub-20 en Brasil.
+
+
+  Con la selección absoluta enfrentó a Estados Unidos en un amistoso (2016),
+  disputó la Copa América en Chile (2018), con clasificación a los Juegos
+  Panamericanos, y jugó amistosos FIFA en Venezuela (2019), contra Japón (2021)
+  y contra Uruguay (2022).
 so_link: true
 rascunho: false
 exemplo: false
