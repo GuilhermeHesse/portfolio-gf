@@ -14,6 +14,7 @@ pe_dominante: Ambidestra
 nacionalidade: Brasileira
 clube_atual: Ação - MT
 situacao: Livre para negociações
+video: https://youtu.be/rU5KbCtZNkY
 galeria:
   - /fotos/l.jpg
   - /fotos/f.jpg
