@@ -297,7 +297,7 @@ content:
       - name: so_link
         label: Mostrar só por link
         type: boolean
-        description: Marcado = o perfil some da página inicial, mas o link direto continua funcionando.
+        description: "Marcado = o perfil some da página inicial, mas o link direto continua funcionando. Os links de todos os atletas (com botões de copiar e WhatsApp) ficam em portfoliogf.com.br/links-62pzsqpe/"
       - name: rascunho
         label: Rascunho (fora do ar)
         type: boolean

@@ -1758,6 +1758,120 @@ select {
   min-width: 220px;
 }
 
+/* ------------------------------------------------------------ links dos atletas (página interna da equipe) */
+
+.links-equipe {
+  padding-top: calc(var(--altura-topo) + clamp(40px, 6vw, 72px));
+}
+
+.links-equipe__texto {
+  max-width: 640px;
+  margin-top: 14px;
+  color: var(--tinta-2);
+}
+
+.links-equipe .bloco__titulo {
+  margin-top: 44px;
+}
+
+.links-equipe__lista {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+}
+
+.links-equipe__item {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 18px 14px 14px;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  background: var(--superficie);
+}
+
+.links-equipe__foto img {
+  width: 64px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: var(--superficie-2);
+}
+
+.links-equipe__info {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.links-equipe__info strong {
+  font-family: var(--serifa);
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.links-equipe__info span {
+  color: var(--tinta-suave);
+  font-size: 13px;
+}
+
+.links-equipe__url {
+  color: var(--ouro-escuro);
+  font-size: 13px;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.links-equipe__url:hover {
+  text-decoration: underline;
+}
+
+.links-equipe__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.links-equipe__idioma {
+  min-width: 42px;
+  height: 42px;
+  padding: 0 10px;
+  border: 1px solid var(--linha-forte);
+  border-radius: 999px;
+  background: none;
+  color: var(--tinta-2);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.links-equipe__idioma:hover {
+  border-color: var(--ouro-escuro);
+  color: var(--ouro-escuro);
+}
+
+@media (max-width: 760px) {
+  .links-equipe__item {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+
+  .links-equipe__foto img {
+    width: 56px;
+    height: 70px;
+  }
+
+  .links-equipe__acoes {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
 /* ------------------------------------------------------------ 404 e avisos */
 
 .erro {

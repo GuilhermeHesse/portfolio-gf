@@ -1020,6 +1020,64 @@ function paginaEntrar(versoes) {
   });
 }
 
+// Página interna da equipe: link de todos os atletas publicados (inclusive os "só por link"),
+// num endereço que não aparece no site, no mapa do site nem no Google (site.config.json → pagina_links)
+function paginaLinksEquipe(atletas, versoes) {
+  const t = UI.pt;
+  const item = (a) => {
+    const tr = tradutor('pt', a.catSlug);
+    const url = absoluta(`atletas/${a.slug}/`);
+    const pos = [tr.posicao(a.posicao), tr.categoriaIdade(a.categoriaIdade)].filter(Boolean).join(', ');
+    const linha = [tr.posicao(a.posicao), tr.categoria(a.catSlug, a.categoria), tr.categoriaIdade(a.categoriaIdade)].filter(Boolean).join(' · ');
+    const copiarIdioma = (idioma, nome) =>
+      `<button type="button" class="links-equipe__idioma" data-copiar-link="${esc(absoluta(`${prefixo(idioma)}atletas/${a.slug}/`))}" title="Copiar o link em ${nome}">${idioma.toUpperCase()}</button>`;
+    return `<li class="links-equipe__item">
+        <a class="links-equipe__foto" href="../atletas/${a.slug}/" target="_blank" rel="noopener">${imagemAtleta(a, 'card', '../', 'pt', 'width="64" height="80" loading="lazy" decoding="async"')}</a>
+        <div class="links-equipe__info">
+          <strong>${esc(a.nome)}</strong>
+          <span>${esc(linha)}</span>
+          <a class="links-equipe__url" href="${esc(url)}" target="_blank" rel="noopener">${esc(url.replace(/^https?:\/\//, ''))}</a>
+        </div>
+        <div class="links-equipe__acoes">
+          <button type="button" class="botao botao--ouro botao--pequeno" data-copiar-link="${esc(url)}">${icone.link}<span>${esc(t.copiarLink)}</span></button>
+          <a class="botao botao--contorno botao--pequeno" href="https://wa.me/?text=${encodeURIComponent(t.envio(a.catSlug, a.nome, pos, url))}" target="_blank" rel="noopener">${icone.whatsapp}<span>WhatsApp</span></a>
+          ${copiarIdioma('en', 'inglês')}
+          ${copiarIdioma('es', 'espanhol')}
+        </div>
+      </li>`;
+  };
+  const grupo = (titulo, lista) =>
+    lista.length
+      ? `<h2 class="bloco__titulo">${esc(titulo)} (${lista.length})</h2>
+    <ul class="links-equipe__lista">
+      ${lista.map(item).join('\n      ')}
+    </ul>`
+      : '';
+  const publicados = atletas.filter((a) => !a.exemplo);
+  const conteudo = `
+<section class="secao links-equipe">
+  <div class="container container--estreito">
+    <p class="sobretitulo">Área da equipe</p>
+    <h1 class="secao__titulo">Links dos atletas</h1>
+    <p class="links-equipe__texto">Todos os atletas publicados, inclusive os que estão só por link. A lista se atualiza sozinha 1 a 2 minutos depois de salvar no painel. Esta página não aparece no site nem no Google: salve nos favoritos e não compartilhe o endereço.</p>
+    ${grupo('Só por link', publicados.filter((a) => !a.listar))}
+    ${grupo('Na vitrine (página inicial)', publicados.filter((a) => a.listar))}
+  </div>
+</section>`;
+  return pagina({
+    idioma: 'pt',
+    titulo: `Links dos atletas · ${config.nome}`,
+    descricao: 'Página interna da equipe G&F Assessoria.',
+    caminho: `${config.pagina_links}/`,
+    raiz: '../',
+    noindex: true,
+    rel: null,
+    classe: 'pagina-links',
+    conteudo,
+    versoes,
+  });
+}
+
 function pagina404(versoes) {
   // Servida em qualquer endereço inexistente: links absolutos a partir da base do site
   const conteudo = `
@@ -1130,6 +1188,10 @@ for (const idioma of IDIOMAS) {
 await writeFile(path.join(DIST, '404.html'), pagina404(versoes));
 await mkdir(path.join(DIST, 'entrar'), { recursive: true });
 await writeFile(path.join(DIST, 'entrar', 'index.html'), paginaEntrar(versoes));
+if (config.pagina_links) {
+  await mkdir(path.join(DIST, config.pagina_links), { recursive: true });
+  await writeFile(path.join(DIST, config.pagina_links, 'index.html'), paginaLinksEquipe(atletas, versoes));
+}
 await writeFile(path.join(DIST, '.nojekyll'), '');
 
 if (config.url) {

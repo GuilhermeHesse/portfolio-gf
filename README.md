@@ -69,6 +69,7 @@ O menu lateral (ícone no canto superior esquerdo) tem:
 5. Salve.
 
 - **Só por link:** a opção "Mostrar só por link" tira o atleta da página inicial, mas o link direto continua funcionando. Serve para uma negociação sigilosa, por exemplo.
+- **Links dos atletas (equipe):** a página **portfoliogf.com.br/links-62pzsqpe/** lista todos os atletas publicados, primeiro os "só por link", com botões para copiar o link (PT, EN, ES) e enviar pelo WhatsApp. Ela se atualiza sozinha a cada publicação, não aparece no site nem no Google. Salve nos favoritos e não compartilhe o endereço. Para trocar o endereço, mude `pagina_links` em `site.config.json`.
 - **Fora do ar:** a opção "Rascunho" tira o perfil do ar sem apagar os dados.
 - **Transfermarkt:** cole o link do perfil do atleta no campo "Transfermarkt" e o botão aparece no perfil, ao lado do Instagram. Em branco, o botão não aparece.
 
