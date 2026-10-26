@@ -18,6 +18,7 @@ ultimo_clube: Paraná Clube/PR
 situacao: Livre para negociações
 situacao_en: Open to negotiations
 situacao_es: Libre para negociaciones
+video: https://youtu.be/z7fH9ss00WI
 galeria:
   - /fotos/whatsapp-image-2026-10-22-at-095108-1.jpeg
   - /fotos/whatsapp-image-2026-10-22-at-095109-1.jpeg
