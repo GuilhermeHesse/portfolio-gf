@@ -17,7 +17,7 @@ ultimo_clube: Avaí Kindermann
 situacao: Formação
 situacao_en: Training
 situacao_es: Formación
-video: https://youtube.com/shorts/H2MXgCULHB8?feature=share
+video: https://youtube.com/shorts/SoqUzR7_O30?feature=share
 galeria:
   - /fotos/natielly.jpg
   - /fotos/3.jpg
