@@ -24,6 +24,7 @@ const TIPOS = {
   '.avif': 'image/avif',
   '.ico': 'image/x-icon',
   '.xml': 'application/xml; charset=utf-8',
+  '.pdf': 'application/pdf',
   '.txt': 'text/plain; charset=utf-8',
 };
 

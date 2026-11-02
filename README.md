@@ -72,6 +72,7 @@ O menu lateral (ícone no canto superior esquerdo) tem:
 - **Links dos atletas (equipe):** a página **portfoliogf.com.br/links-62pzsqpe/** lista todos os atletas publicados, primeiro os "só por link", com botões para copiar o link (PT, EN, ES) e enviar pelo WhatsApp. Ela se atualiza sozinha a cada publicação, não aparece no site nem no Google. Salve nos favoritos e não compartilhe o endereço. Para trocar o endereço, mude `pagina_links` em `site.config.json`.
 - **Fora do ar:** a opção "Rascunho" tira o perfil do ar sem apagar os dados.
 - **Transfermarkt:** cole o link do perfil do atleta no campo "Transfermarkt" e o botão aparece no perfil, ao lado do Instagram. Em branco, o botão não aparece.
+- **Análise de desempenho:** no campo "Análise de desempenho (relatórios em PDF)", adicione um item por relatório: envie o PDF (ele vai para a pasta `relatorios/`), preencha jogo, competição, data e fonte e, se quiser, até 6 "números em destaque" (ex.: Aproveitamento · 74%). O perfil ganha a seção "Análise de desempenho" logo abaixo do vídeo, com botões para abrir e baixar o PDF, e um atalho no topo. O mais recente aparece primeiro. Os nomes de números mais comuns (nota final, aproveitamento, ações certas, defesa de meta, defesa aérea, minutos jogados) são traduzidos sozinhos no inglês e no espanhol.
 
 ### 2.3 Dar acesso aos funcionários
 

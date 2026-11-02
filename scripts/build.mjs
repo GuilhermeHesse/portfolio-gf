@@ -78,6 +78,10 @@ const icone = {
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M7 9V3h10v6M7 18H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M7 14h10v7H7z"/></svg>',
   trofeu:
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/></svg>',
+  grafico:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>',
+  baixar:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>',
   seta: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>',
   link: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></svg>',
   email:
@@ -176,7 +180,7 @@ function lerData(valor, arquivo) {
   if (r) [, a, m, d] = r;
   else if ((r = valor.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/))) [, d, m, a] = r;
   else {
-    aviso(`${arquivo}: data de nascimento "${valor}" não reconhecida. Use DD/MM/AAAA.`);
+    aviso(`${arquivo}: data "${valor}" não reconhecida. Use DD/MM/AAAA.`);
     return null;
   }
   const dd = String(d).padStart(2, '0');
@@ -231,8 +235,8 @@ function grupoPosicao(posicao) {
 
 const EXT_IMAGEM = /\.(jpe?g|png|webp|avif)$/i;
 
-// Caminho de imagem gravado pelo painel ("/fotos/x.jpg", a partir da raiz) ou relativo à ficha
-function caminhoImagem(valor, dir, rotulo) {
+// Caminho de arquivo gravado pelo painel ("/fotos/x.jpg", "/relatorios/x.pdf", a partir da raiz) ou relativo à ficha
+function caminhoImagem(valor, dir, rotulo, tipo = 'imagem') {
   const v = texto(valor);
   if (!v) return null;
   // Nomes enviados pelo GitHub podem ter espaço, acento ou "%" (ex.: "Sem título.jpg")
@@ -244,8 +248,28 @@ function caminhoImagem(valor, dir, rotulo) {
   }
   const caminho = v.startsWith('/') ? path.join(RAIZ, decodificado) : path.join(dir, decodificado);
   if (existsSync(caminho)) return caminho;
-  aviso(`${rotulo}: imagem "${v}" não encontrada.`);
+  aviso(`${rotulo}: ${tipo} "${v}" não encontrado(a).`);
   return null;
+}
+
+// Relatórios de desempenho em PDF (seção "Análise de desempenho"), do mais recente para o mais antigo
+function lerRelatorios(valor, dir, rotulo) {
+  return lista(valor)
+    .map((r) => (typeof r === 'object' ? r : { arquivo: r }))
+    .map((r) => {
+      const arquivo = caminhoImagem(r.arquivo, dir, rotulo, 'relatório');
+      if (arquivo && !/\.pdf$/i.test(arquivo)) aviso(`${rotulo}: o relatório "${texto(r.arquivo)}" não é um PDF.`);
+      return {
+        arquivo: arquivo && /\.pdf$/i.test(arquivo) ? arquivo : null,
+        titulo: texto(r.titulo),
+        competicao: texto(r.competicao),
+        data: lerData(texto(r.data), rotulo),
+        fonte: texto(r.fonte),
+        numeros: itens(r.numeros, ['valor'], (p) => ({ rotulo: p[0], valor: p[1] })).filter((n) => n.rotulo && n.valor),
+      };
+    })
+    .filter((r) => r.arquivo)
+    .sort((a, b) => (b.data?.iso || '').localeCompare(a.data?.iso || ''));
 }
 
 async function arquivosDeAtletas() {
@@ -348,6 +372,7 @@ async function lerAtletas() {
       ),
       estatisticas: itens(dados.estatisticas, ['valor'], (p) => ({ rotulo: p[0], valor: p[1], obs: p[2] })).filter((e) => e.rotulo && e.valor),
       extras: itens(dados.extras, ['valor'], (p) => ({ rotulo: p[0], valor: p.slice(1).join(' · ') })).filter((e) => e.rotulo && e.valor),
+      relatorios: lerRelatorios(dados.relatorios, dir, rotulo),
       historia: { pt: textoParaHtml(corpo), en: textoParaHtml(t('historia_en')), es: textoParaHtml(t('historia_es')) },
       foto,
       galeria,
@@ -410,6 +435,19 @@ async function prepararImagens(atleta) {
     imagens.galeria.push({ grande: `galeria-${n}.webp${vGaleria[i]}`, mini: `galeria-${n}-mini.webp${vGaleria[i]}` });
   }
   return imagens;
+}
+
+// PDFs de desempenho copiados para a pasta do atleta, com "?v=" para o navegador buscar a versão nova
+async function prepararRelatorios(atleta) {
+  const destino = path.join(DIST, 'atletas', atleta.slug);
+  await mkdir(destino, { recursive: true });
+  return Promise.all(
+    atleta.relatorios.map(async (r, i) => {
+      const nome = `relatorio-${i + 1}.pdf`;
+      await copyFile(r.arquivo, path.join(destino, nome));
+      return { ...r, url: nome + (await versaoImagem(r.arquivo)) };
+    }),
+  );
 }
 
 async function gerarCartaoOg(fotoBuffer, saida) {
@@ -851,6 +889,49 @@ function paginaAtleta(a, idioma, versoes) {
   </div>
 </section>`;
 
+  // Análise de desempenho: cartão por relatório (jogo, data, números em destaque) e o PDF completo
+  const secaoDesempenho = a.relatorios.length
+    ? `
+<section class="secao secao--papel secao--desempenho" id="desempenho" aria-labelledby="titulo-desempenho">
+  <div class="container">
+    <div class="secao__cabeca">
+      <p class="sobretitulo">${esc(t.desempenho)}</p>
+      <h2 id="titulo-desempenho" class="secao__titulo">${esc(t.emNumeros(a.nome))}</h2>
+    </div>
+    <div class="relatorios">
+      ${a.relatorios
+        .map((r) => {
+          const pdf = `${raiz}atletas/${a.slug}/${r.url}`;
+          const meta = [r.competicao, r.data && formatarData(r.data, idioma)].filter(Boolean).join(' · ');
+          return `<article class="relatorio">
+        <div class="relatorio__cabeca">
+          <span class="relatorio__icone">${icone.grafico}</span>
+          <div>
+            <p class="relatorio__fonte">${esc([t.relatorio, r.fonte].filter(Boolean).join(' · '))}</p>
+            ${r.titulo ? `<h3 class="relatorio__titulo">${esc(r.titulo)}</h3>` : ''}
+            ${meta ? `<p class="relatorio__meta">${esc(meta)}</p>` : ''}
+          </div>
+        </div>
+        ${
+          r.numeros.length
+            ? `<dl class="estatisticas relatorio__numeros">
+          ${r.numeros.map((n) => `<div><dt>${esc(tr.rotulo(n.rotulo))}</dt><dd>${esc(n.valor)}</dd></div>`).join('\n          ')}
+        </dl>`
+            : ''
+        }
+        <div class="relatorio__acoes">
+          <a class="botao botao--ouro" href="${esc(pdf)}" target="_blank" rel="noopener"${evento('Abriu relatório', a, idioma)}>${icone.grafico}<span>${esc(t.verRelatorio)}</span></a>
+          <a class="botao botao--contorno" href="${esc(pdf)}" download="${esc(t.nomeArquivoRelatorio(a.nome.replace(/["']/g, '')))}.pdf"${evento('Baixou relatório', a, idioma)}>${icone.baixar}<span>${esc(t.baixarRelatorio)}</span></a>
+          ${t.relatorioIdioma ? `<span class="relatorio__idioma">${esc(t.relatorioIdioma)}</span>` : ''}
+        </div>
+      </article>`;
+        })
+        .join('\n      ')}
+    </div>
+  </div>
+</section>`
+    : '';
+
   const secaoGaleria = a.imagens.galeria.length
     ? `
 <section class="secao secao--galeria" aria-labelledby="titulo-galeria">
@@ -910,6 +991,7 @@ ${a.exemplo ? `<div class="faixa-exemplo">${esc(t.faixaExemplo)}</div>` : ''}
       <div class="perfil__utilidades">
         ${botoesEnvio(a, idioma, true)}
         <button type="button" class="botao-texto" data-imprimir${evento('Baixou PDF', a, idioma)}>${icone.imprimir}<span>${esc(t.baixarPdf)}</span></button>
+        ${a.relatorios.length ? `<a class="botao-texto" href="#desempenho">${icone.grafico}<span>${esc(t.desempenho)}</span></a>` : ''}
         ${a.instagram ? `<a class="botao-texto" href="${esc(linkInstagram(a.instagram))}" target="_blank" rel="noopener"${evento('Abriu Instagram', a, idioma)}>${icone.instagram}<span>Instagram</span></a>` : ''}
         ${a.transfermarkt ? `<a class="botao-texto" href="${esc(a.transfermarkt)}" target="_blank" rel="noopener"${evento('Abriu Transfermarkt', a, idioma)}>${icone.externo}<span>Transfermarkt</span></a>` : ''}
       </div>
@@ -917,6 +999,7 @@ ${a.exemplo ? `<div class="faixa-exemplo">${esc(t.faixaExemplo)}</div>` : ''}
   </div>
 </section>
 ${secaoVideo}
+${secaoDesempenho}
 ${secaoGaleria}
 
 <section class="secao secao--papel" aria-labelledby="titulo-ficha">
@@ -965,6 +1048,7 @@ ${secaoGaleria}
 
 <div class="so-impressao impressao-rodape">
   ${a.video ? `<p><strong>${esc(t.melhoresLances)}:</strong> https://youtu.be/${a.video.id}</p>` : ''}
+  ${a.relatorios.length ? `<p><strong>${esc(t.desempenho)}:</strong> ${esc(absoluta(`atletas/${a.slug}/${a.relatorios[0].url.replace(/\?.*$/, '')}`))}</p>` : ''}
   <p><strong>${esc(t.perfilCompleto)}:</strong> ${esc(urlPerfil)}</p>
   <p><strong>G&amp;F Assessoria</strong> · WhatsApp ${esc(config.whatsapp_exibicao)} · ${esc(config.email)} · ${esc(t.intermediario)}</p>
 </div>`;
@@ -1172,6 +1256,7 @@ if (sharp) {
 const atletas = await lerAtletas();
 for (const atleta of atletas) {
   atleta.imagens = await prepararImagens(atleta);
+  atleta.relatorios = await prepararRelatorios(atleta);
   for (const idioma of IDIOMAS) {
     const pasta = path.join(DIST, prefixo(idioma), 'atletas', atleta.slug);
     await mkdir(pasta, { recursive: true });

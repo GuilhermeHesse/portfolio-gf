@@ -7,17 +7,23 @@ categoria: Feminino
 categoria_idade: Profissional
 posicao: Goleira
 nascimento: 2007-06-03
-altura: 1,72
-peso: "72"
+altura: 1,73
+peso: "70"
 pe_dominante: Ambidestra
 nacionalidade: Brasileira
-clube_atual: Flamengo de São Pedro / Gurias do Yucumã
+clube_atual: Ação SAF
 ultimo_clube: Flamengo de São Pedro / Gurias do Yucumã
 situacao: Livre para negociações
 situacao_en: Open to negotiations
 situacao_es: Libre para negociaciones
 video: https://youtu.be/3Sx9DkeQcGc
 galeria:
+  - /fotos/madu-jogo-defesa.jpg
+  - /fotos/madu-retrato-bracos-cruzados.jpg
+  - /fotos/madu-jogo-trave.jpg
+  - /fotos/madu-retrato-sorriso.jpg
+  - /fotos/madu-retrato-bracos-cruzados-2.jpg
+  - /fotos/madu-retrato-maos.jpg
   - /fotos/whatsapp-image-2026-10-22-at-092504-2.jpeg
   - /fotos/whatsapp-image-2026-10-22-at-092503-1.jpeg
   - /fotos/sem-titulo-5.jpg

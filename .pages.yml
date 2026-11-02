@@ -3,11 +3,20 @@
 # e só editam o que está definido aqui (atletas e fotos), sem acesso ao código do site.
 # Cada alteração salva vira um registro no GitHub (quem, quando, o quê) e pode ser desfeita.
 
+# Duas pastas de mídia: fotos (padrão dos campos de imagem) e relatórios de desempenho em PDF
 media:
-  input: fotos
-  output: /fotos
-  rename: safe
-  categories: [image]
+  - name: fotos
+    label: Fotos
+    input: fotos
+    output: /fotos
+    rename: safe
+    categories: [image]
+  - name: relatorios
+    label: Relatórios (PDF)
+    input: relatorios
+    output: /relatorios
+    rename: safe
+    categories: [document]
 
 settings:
   commit:
@@ -187,11 +196,53 @@ content:
       - name: galeria
         label: Galeria de fotos
         type: image
-        description: Até 8 fotos de jogo ou treino.
+        description: Até 12 fotos de jogo, treino ou ensaio. A primeira aparece primeiro no perfil.
         options:
           multiple:
-            max: 8
+            max: 12
           unique: true
+
+      # ------------------------------------------------ análise de desempenho
+      - name: relatorios
+        label: Análise de desempenho (relatórios em PDF)
+        type: object
+        description: Cada relatório aparece no perfil, logo abaixo do vídeo, com botões para abrir e baixar o PDF. O mais recente aparece primeiro.
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{data} · {titulo}"
+        fields:
+          - name: arquivo
+            label: Relatório (PDF)
+            type: file
+            options:
+              media: relatorios
+          - name: titulo
+            label: Jogo ou título
+            type: string
+            description: "Ex.: Ação SAF x Paulistano"
+          - name: competicao
+            label: Competição (opcional)
+            type: string
+          - name: data
+            label: Data do jogo
+            type: date
+          - name: fonte
+            label: Fonte (opcional)
+            type: string
+            description: "Ex.: KeeperScout"
+          - name: numeros
+            label: Números em destaque (opcional)
+            type: object
+            description: "Até 6 números do relatório para mostrar no perfil. Ex.: Aproveitamento · 74%"
+            list: true
+            fields:
+              - name: rotulo
+                label: Nome do número
+                type: string
+              - name: valor
+                label: Valor
+                type: string
 
       # ------------------------------------------------ carreira
       - name: trajetoria

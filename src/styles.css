@@ -1054,6 +1054,90 @@ select {
   width: 56px;
 }
 
+/* ------------------------------------------------------------ análise de desempenho (relatórios em PDF) */
+
+.relatorios {
+  display: grid;
+  gap: 20px;
+}
+
+.relatorio {
+  padding: clamp(22px, 3vw, 34px);
+  border: 1px solid var(--linha);
+  border-top: 3px solid var(--ouro);
+  border-radius: var(--raio);
+  background: var(--fundo);
+  box-shadow: var(--sombra);
+}
+
+.relatorio__cabeca {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.relatorio__icone {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(211, 173, 56, 0.12);
+  color: var(--ouro);
+}
+
+.relatorio__icone svg {
+  width: 24px;
+  height: 24px;
+}
+
+.relatorio__fonte {
+  color: var(--ouro-escuro);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.relatorio__titulo {
+  margin-top: 4px;
+  font-family: var(--serifa);
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.relatorio__meta {
+  margin-top: 4px;
+  color: var(--tinta-suave);
+  font-size: 14px;
+}
+
+.relatorio__numeros {
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  margin-top: 24px;
+}
+
+.relatorio__numeros div {
+  border: 1px solid var(--linha);
+  background: var(--superficie);
+}
+
+.relatorio__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.relatorio__idioma {
+  color: var(--tinta-suave);
+  font-size: 13px;
+  font-style: italic;
+}
+
 /* ------------------------------------------------------------ galeria de fotos */
 
 .secao--galeria {
@@ -2047,7 +2131,8 @@ select {
   }
 
   .perfil__acoes .botao,
-  .contato-atleta__acoes .botao {
+  .contato-atleta__acoes .botao,
+  .relatorio__acoes .botao {
     flex: 1 1 100%;
   }
 
@@ -2164,6 +2249,7 @@ select {
   .perfil__acoes,
   .perfil__utilidades,
   .secao--video,
+  .secao--desempenho,
   .secao--galeria,
   .visor,
   .nota-idioma,
