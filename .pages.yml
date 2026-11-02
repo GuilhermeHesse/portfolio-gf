@@ -55,6 +55,8 @@ content:
         label: Foto principal
         type: image
         description: De preferência vertical, com boa luz e o rosto visível. O site corta e comprime sozinho.
+        options:
+          media: fotos
       - name: foco
         label: Recorte da foto
         type: select
@@ -198,6 +200,7 @@ content:
         type: image
         description: Até 12 fotos de jogo, treino ou ensaio. A primeira aparece primeiro no perfil.
         options:
+          media: fotos
           multiple:
             max: 12
           unique: true
