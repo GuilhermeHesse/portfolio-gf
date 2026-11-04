@@ -482,7 +482,8 @@ export function tradutor(idioma, genero) {
     posicao: (v) => (pt || !v ? v : doDicionario(POSICOES, v, idioma, genero) || v),
     pe: (v) => (pt || !v ? v : doDicionario(PES, v, idioma, genero) || v),
     categoria: (catSlug, original) => (pt ? original : UI[idioma].categorias[catSlug] || original),
-    categoriaIdade: (v) => (pt || !v ? v : termosComuns(v, idioma)),
+    // "Base" (categorias de formação) vira "Youth" / "Formativas"; o resto passa pelos termos comuns
+    categoriaIdade: (v) => (pt || !v ? v : chave(v) === 'base' ? (idioma === 'en' ? 'Youth' : 'Formativas') : termosComuns(v, idioma)),
     termos: (v) => (pt || !v ? v : termosComuns(v, idioma)),
     rotulo: (v) => (pt || !v ? v : doDicionario(ROTULOS, v, idioma, genero) || v),
     nacionalidade: (v) => {
