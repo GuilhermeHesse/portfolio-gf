@@ -252,6 +252,35 @@ function caminhoImagem(valor, dir, rotulo, tipo = 'imagem') {
   return null;
 }
 
+// Minutagem da temporada (campinho ao lado de "Baixar ficha em PDF"); só aparece com os minutos preenchidos.
+// "competicoes" (competição, time, jogos, titular, minutos) é o detalhe que abre ao clicar no campinho;
+// totais em branco são a soma das competições.
+function lerMinutagem(valor, rotulo) {
+  if (!valor || typeof valor !== 'object') return null;
+  const numero = (v) => {
+    const n = Number(texto(v).replace(/\./g, '').replace(',', '.'));
+    return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
+  };
+  const competicoes = lista(valor.competicoes)
+    .filter((c) => typeof c === 'object')
+    .map((c) => ({ competicao: texto(c.competicao), time: texto(c.time), jogos: numero(c.jogos), titular: numero(c.titular), minutos: numero(c.minutos) }))
+    .filter((c) => c.competicao && c.minutos);
+  const soma = (campo) => competicoes.reduce((s, c) => s + (c[campo] || 0), 0) || null;
+  const minutos = numero(valor.minutos) || soma('minutos');
+  if (!minutos) return null;
+  if (competicoes.length && soma('minutos') !== minutos) {
+    aviso(`${rotulo}: a minutagem total (${minutos}) não bate com a soma das competições (${soma('minutos')}).`);
+  }
+  return {
+    temporada: texto(valor.temporada) || String(HOJE.getFullYear()),
+    minutos,
+    jogos: numero(valor.jogos) || soma('jogos'),
+    titular: numero(valor.titular) || soma('titular'),
+    atualizado: lerData(texto(valor.atualizado), rotulo),
+    competicoes,
+  };
+}
+
 // Relatórios de desempenho em PDF (seção "Análise de desempenho"), do mais recente para o mais antigo
 function lerRelatorios(valor, dir, rotulo) {
   return lista(valor)
@@ -373,6 +402,7 @@ async function lerAtletas() {
       estatisticas: itens(dados.estatisticas, ['valor'], (p) => ({ rotulo: p[0], valor: p[1], obs: p[2] })).filter((e) => e.rotulo && e.valor),
       extras: itens(dados.extras, ['valor'], (p) => ({ rotulo: p[0], valor: p.slice(1).join(' · ') })).filter((e) => e.rotulo && e.valor),
       relatorios: lerRelatorios(dados.relatorios, dir, rotulo),
+      minutagem: lerMinutagem(dados.minutagem, rotulo),
       historia: { pt: textoParaHtml(corpo), en: textoParaHtml(t('historia_en')), es: textoParaHtml(t('historia_es')) },
       foto,
       galeria,
@@ -651,6 +681,73 @@ function botoesEnvio(a, idioma, comTexto = false) {
           <button type="button" class="envio__botao" data-copiar-link="${esc(url)}" title="${esc(t.copiarLinkDica)}"${evento('Copiou link', a, idioma)}>${icone.link}${rotulo(t.copiarLink)}</button>
           <a class="envio__botao" href="https://wa.me/?text=${encodeURIComponent(t.envio(a.catSlug, a.nome, pos, url))}" target="_blank" rel="noopener" title="${esc(t.enviarWhatsDica)}"${evento('Enviou perfil pelo WhatsApp', a, idioma)}>${icone.whatsapp}${rotulo(t.enviarWhats)}</a>
         </div>`;
+}
+
+// Mini campo de futebol com os minutos jogados na temporada, ao lado dos links do perfil.
+// Com o detalhe por competição preenchido, o campinho vira botão e abre a janela com competição e time.
+function campinhoMinutagem(a, idioma) {
+  const m = a.minutagem;
+  if (!m) return '';
+  const t = UI[idioma];
+  const formato = new Intl.NumberFormat(UI[idioma].htmlLang, { useGrouping: 'always' });
+  const detalhe = t.minutagemJogos(m.jogos, m.titular);
+  const atualizado = m.atualizado ? t.minutagemAtualizada(formatarData(m.atualizado, idioma)) : '';
+  const clicavel = m.competicoes.length > 0;
+  const tag = clicavel ? 'button' : 'div';
+  const atributos = clicavel
+    ? ` type="button" data-abrir-minutagem aria-haspopup="dialog" aria-label="${esc(`${t.minutagem(m.temporada)}: ${formato.format(m.minutos)} min. ${t.minutagemVer}`)}"${evento('Abriu minutagem', a, idioma)}`
+    : atualizado
+      ? ` title="${esc(atualizado)}"`
+      : '';
+  return `<${tag} class="minutagem${clicavel ? ' minutagem--clicavel' : ''}"${atributos}>
+        <svg class="minutagem__campo" viewBox="0 0 200 124" preserveAspectRatio="none" aria-hidden="true">
+          <rect x="4" y="4" width="192" height="116" rx="4"/>
+          <path d="M100 4v14M100 106v14M4 36h26v52H4M196 36h-26v52h26M4 50h10v24H4M196 50h-10v24h10M30 52a10 10 0 0 1 0 20M170 52a10 10 0 0 0 0 20"/>
+        </svg>
+        <span class="minutagem__rotulo">${esc(t.minutagem(m.temporada))}</span>
+        <span class="minutagem__valor">${formato.format(m.minutos)}<small>min</small></span>
+        ${detalhe ? `<span class="minutagem__detalhe">${esc(detalhe)}</span>` : ''}
+        ${clicavel ? `<span class="minutagem__ver">${esc(t.minutagemVer)} ${icone.seta}</span>` : ''}
+      </${tag}>`;
+}
+
+// Janela com a minutagem por competição e time (aberta pelo campinho)
+function detalheMinutagem(a, idioma) {
+  const m = a.minutagem;
+  if (!m || !m.competicoes.length) return '';
+  const t = UI[idioma];
+  const tr = tradutor(idioma, a.catSlug);
+  const formato = new Intl.NumberFormat(UI[idioma].htmlLang, { useGrouping: 'always' });
+  const maior = Math.max(...m.competicoes.map((c) => c.minutos));
+  const atualizado = m.atualizado ? t.minutagemAtualizada(formatarData(m.atualizado, idioma)) : '';
+  return `
+<dialog class="minutagem-detalhe" data-minutagem-detalhe aria-labelledby="titulo-minutagem">
+  <div class="minutagem-detalhe__caixa">
+    <button type="button" class="minutagem-detalhe__fechar" data-fechar-minutagem aria-label="${esc(t.fechar)}">${icone.fechar}</button>
+    <p class="sobretitulo">${esc(t.minutagem(m.temporada))}</p>
+    <h2 id="titulo-minutagem" class="minutagem-detalhe__titulo">${esc(a.nome)}</h2>
+    <ul class="minutagem-detalhe__lista">
+      ${m.competicoes
+        .map(
+          (c) => `<li>
+        <div class="minutagem-detalhe__linha">
+          <div><strong>${esc(tr.termos(c.competicao))}</strong>${c.time ? `<span>${esc(c.time)}</span>` : ''}${
+            c.jogos || c.titular ? `<span class="minutagem-detalhe__jogos">${esc(t.minutagemJogos(c.jogos, c.titular))}</span>` : ''
+          }</div>
+          <div class="minutagem-detalhe__num"><strong>${formato.format(c.minutos)}<small>min</small></strong></div>
+        </div>
+        <span class="minutagem-detalhe__barra"><span style="width:${Math.max(4, Math.round((c.minutos / maior) * 100))}%"></span></span>
+      </li>`,
+        )
+        .join('\n      ')}
+    </ul>
+    <div class="minutagem-detalhe__total">
+      <span>${esc(t.minutagemTotal)}</span>
+      <div class="minutagem-detalhe__num"><strong>${formato.format(m.minutos)}<small>min</small></strong><span>${esc(t.minutagemJogos(m.jogos, m.titular))}</span></div>
+    </div>
+    ${atualizado ? `<p class="minutagem-detalhe__nota">${esc(atualizado)}</p>` : ''}
+  </div>
+</dialog>`;
 }
 
 function imagemAtleta(a, tamanho, raiz, idioma, extra = '') {
@@ -988,6 +1085,7 @@ ${a.exemplo ? `<div class="faixa-exemplo">${esc(t.faixaExemplo)}</div>` : ''}
         ${a.video ? `<a class="botao botao--ouro" href="#video">${icone.play}<span>${esc(t.assistir)}</span></a>` : ''}
         <a class="botao ${a.video ? 'botao--contorno' : 'botao--ouro'}" href="${esc(whats)}" target="_blank" rel="noopener"${evento('WhatsApp G&F', a, idioma)}>${icone.whatsapp}<span>${esc(t.falarGF)}</span></a>
       </div>
+      <div class="perfil__extras">
       <div class="perfil__utilidades">
         ${botoesEnvio(a, idioma, true)}
         <button type="button" class="botao-texto" data-imprimir${evento('Baixou PDF', a, idioma)}>${icone.imprimir}<span>${esc(t.baixarPdf)}</span></button>
@@ -995,9 +1093,12 @@ ${a.exemplo ? `<div class="faixa-exemplo">${esc(t.faixaExemplo)}</div>` : ''}
         ${a.instagram ? `<a class="botao-texto" href="${esc(linkInstagram(a.instagram))}" target="_blank" rel="noopener"${evento('Abriu Instagram', a, idioma)}>${icone.instagram}<span>Instagram</span></a>` : ''}
         ${a.transfermarkt ? `<a class="botao-texto" href="${esc(a.transfermarkt)}" target="_blank" rel="noopener"${evento('Abriu Transfermarkt', a, idioma)}>${icone.externo}<span>Transfermarkt</span></a>` : ''}
       </div>
+      ${campinhoMinutagem(a, idioma)}
+      </div>
     </div>
   </div>
 </section>
+${detalheMinutagem(a, idioma)}
 ${secaoVideo}
 ${secaoDesempenho}
 ${secaoGaleria}

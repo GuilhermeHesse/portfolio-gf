@@ -24,6 +24,23 @@ trajetoria:
     detalhe: Profissional
   - clube: Abelhas Rainhas
     detalhe: Profissional
+minutagem:
+  temporada: "2026"
+  minutos: 694
+  jogos: 9
+  titular: 8
+  atualizado: 2026-11-13
+  competicoes:
+    - competicao: Brasileiro Feminino A3
+      time: R4 Esporte Clube (CE)
+      jogos: 8
+      titular: 8
+      minutos: 659
+    - competicao: Copa do Brasil Feminina
+      time: R4 Esporte Clube (CE)
+      jogos: 1
+      titular: 0
+      minutos: 35
 so_link: false
 rascunho: false
 exemplo: false

@@ -930,11 +930,291 @@ select {
   margin-top: 30px;
 }
 
-.perfil__utilidades {
+/* Links do perfil à esquerda e, quando houver, o campinho de minutagem à direita */
+.perfil__extras {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 28px;
+  align-items: center;
+  gap: 20px 28px;
   margin-top: 20px;
+}
+
+.perfil__utilidades {
+  display: flex;
+  flex: 1 1 280px;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+}
+
+/* Campinho de minutagem: gramado escuro com faixas, linhas douradas e os minutos no centro */
+.minutagem {
+  position: relative;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  flex: none;
+  width: 210px;
+  height: 130px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background:
+    radial-gradient(60% 70% at 50% 50%, rgba(7, 7, 7, 0.55), transparent 75%),
+    repeating-linear-gradient(90deg, #12301f 0 25px, #0f2919 25px 50px);
+  box-shadow: inset 0 0 0 1px rgba(211, 173, 56, 0.25), var(--sombra);
+  color: inherit;
+  text-align: center;
+  overflow: hidden;
+}
+
+.minutagem--clicavel {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.minutagem--clicavel:hover {
+  transform: translateY(-2px);
+  box-shadow: inset 0 0 0 1px rgba(240, 212, 122, 0.6), var(--sombra-forte);
+}
+
+.minutagem__campo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: rgba(240, 212, 122, 0.4);
+  stroke-width: 1.4;
+}
+
+.minutagem > span {
+  position: relative;
+  display: block;
+}
+
+.minutagem__rotulo {
+  color: var(--ouro-claro);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.minutagem__valor {
+  margin-top: 2px;
+  color: var(--branco);
+  font-family: var(--serifa);
+  font-size: 2.3rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.minutagem__valor small {
+  margin-left: 4px;
+  color: var(--prata);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.minutagem__detalhe {
+  margin-top: 5px;
+  color: var(--prata);
+  font-size: 11px;
+}
+
+.minutagem > .minutagem__ver {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  color: var(--ouro-claro);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.minutagem__ver svg {
+  width: 11px;
+  height: 11px;
+}
+
+/* Janela com a minutagem por competição e time */
+.minutagem-detalhe {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 48px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--raio);
+  background: transparent;
+  color: var(--tinta);
+}
+
+.minutagem-detalhe::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(3px);
+}
+
+.minutagem-detalhe__caixa {
+  position: relative;
+  padding: clamp(24px, 4vw, 34px);
+  border: 1px solid var(--linha);
+  border-top: 3px solid var(--ouro);
+  border-radius: var(--raio);
+  background: var(--superficie);
+}
+
+.minutagem-detalhe__fechar {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--linha-forte);
+  border-radius: 50%;
+  background: none;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+.minutagem-detalhe__fechar svg {
+  width: 18px;
+  height: 18px;
+}
+
+.minutagem-detalhe__fechar:hover {
+  border-color: var(--ouro);
+  color: var(--ouro-claro);
+}
+
+.minutagem-detalhe__titulo {
+  padding-right: 44px;
+  font-family: var(--serifa);
+  font-size: clamp(1.7rem, 4vw, 2.1rem);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.minutagem-detalhe__lista {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+  list-style: none;
+}
+
+.minutagem-detalhe__lista li {
+  padding: 14px 16px 12px;
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+  background: var(--fundo);
+}
+
+.minutagem-detalhe__linha {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.minutagem-detalhe__linha > div:first-child {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.minutagem-detalhe__linha strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.minutagem-detalhe__linha > div:first-child span {
+  color: var(--tinta-suave);
+  font-size: 13px;
+}
+
+.minutagem-detalhe__linha > div:first-child .minutagem-detalhe__jogos {
+  color: var(--tinta-2);
+  font-size: 12px;
+}
+
+.minutagem-detalhe__num {
+  display: grid;
+  flex: none;
+  justify-items: end;
+  text-align: right;
+}
+
+.minutagem-detalhe__num strong {
+  color: var(--ouro-claro);
+  font-family: var(--serifa);
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.minutagem-detalhe__num small {
+  margin-left: 3px;
+  color: var(--tinta-suave);
+  font-family: var(--sans);
+  font-size: 11px;
+}
+
+.minutagem-detalhe__num span {
+  margin-top: 4px;
+  color: var(--tinta-suave);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.minutagem-detalhe__barra {
+  display: block;
+  height: 4px;
+  margin-top: 12px;
+  border-radius: 999px;
+  background: var(--linha);
+  overflow: hidden;
+}
+
+.minutagem-detalhe__barra span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gradiente-ouro);
+}
+
+.minutagem-detalhe__total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--linha-forte);
+}
+
+.minutagem-detalhe__total > span {
+  color: var(--ouro-escuro);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.minutagem-detalhe__total .minutagem-detalhe__num strong {
+  color: var(--tinta);
+  font-size: 2rem;
+}
+
+.minutagem-detalhe__nota {
+  margin-top: 14px;
+  color: var(--tinta-suave);
+  font-size: 12px;
 }
 
 /* ------------------------------------------------------------ vídeo (faixa escura) */
@@ -2163,6 +2443,21 @@ select {
     inset: -10px 10px 10px -10px;
   }
 
+  /* No celular o campinho ocupa a largura toda, mantendo a proporção de um campo */
+  .minutagem {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 200 / 124;
+  }
+
+  .minutagem__valor {
+    font-size: 2.8rem;
+  }
+
+  .minutagem-detalhe__lista li {
+    padding: 12px 14px 10px;
+  }
+
   .numeros {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -2248,6 +2543,7 @@ select {
   .painel-fundo,
   .perfil__acoes,
   .perfil__utilidades,
+  .minutagem,
   .secao--video,
   .secao--desempenho,
   .secao--galeria,

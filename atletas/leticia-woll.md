@@ -35,6 +35,33 @@ trajetoria:
   - periodo: 2021 - 2023
     clube: Libertad (Missiones Argentina)
     detalhe: Profissional
+minutagem:
+  temporada: "2026"
+  minutos: 1104
+  jogos: 21
+  titular: 16
+  atualizado: 2026-11-13
+  competicoes:
+    - competicao: Carioca Feminino
+      time: Real Heips (RJ)
+      jogos: 9
+      titular: 8
+      minutos: 428
+    - competicao: Copa Rio Feminina
+      time: Real Heips (RJ)
+      jogos: 4
+      titular: 4
+      minutos: 338
+    - competicao: Brasileiro Feminino A3
+      time: Real Heips (RJ)
+      jogos: 6
+      titular: 3
+      minutos: 297
+    - competicao: Copa do Brasil Feminina
+      time: Real Heips (RJ)
+      jogos: 2
+      titular: 1
+      minutos: 41
 so_link: false
 rascunho: false
 exemplo: false

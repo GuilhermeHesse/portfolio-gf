@@ -31,6 +31,28 @@ trajetoria:
 conquistas:
   - titulo: " Destaque no Campeonato Cearense"
   - titulo: Destaque no Campeonato Brasileiro A3.
+minutagem:
+  temporada: "2026"
+  minutos: 429
+  jogos: 11
+  titular: 3
+  atualizado: 2026-11-13
+  competicoes:
+    - competicao: Brasileiro Feminino A3
+      time: R4 Esporte Clube (CE)
+      jogos: 8
+      titular: 0
+      minutos: 180
+    - competicao: Cearense Feminino
+      time: R4 Esporte Clube (CE)
+      jogos: 2
+      titular: 2
+      minutos: 180
+    - competicao: Copa do Brasil Feminina
+      time: R4 Esporte Clube (CE)
+      jogos: 1
+      titular: 1
+      minutos: 69
 so_link: false
 rascunho: false
 exemplo: false

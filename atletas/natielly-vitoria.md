@@ -27,6 +27,23 @@ galeria:
   - /fotos/2.jpg
 trajetoria:
   - clube: Avaí Kindermann
+minutagem:
+  temporada: "2026"
+  minutos: 359
+  jogos: 8
+  titular: 4
+  atualizado: 2026-11-13
+  competicoes:
+    - competicao: Brasileiro Feminino Sub-17
+      time: Avaí/Kindermann (SC)
+      jogos: 5
+      titular: 4
+      minutos: 256
+    - competicao: Catarinense Feminino
+      time: Avaí/Kindermann (SC)
+      jogos: 3
+      titular: 0
+      minutos: 103
 so_link: false
 rascunho: false
 exemplo: false

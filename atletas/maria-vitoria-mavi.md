@@ -43,6 +43,28 @@ conquistas:
     titulo: "acesso A3 pelo Uberlândia "
   - ano: "2024"
     titulo: acesso A3 pelo Cresspom
+minutagem:
+  temporada: "2026"
+  minutos: 1428
+  jogos: 20
+  titular: 15
+  atualizado: 2026-11-13
+  competicoes:
+    - competicao: Brasileiro Feminino A2
+      time: Itacoatiara FC (AM)
+      jogos: 14
+      titular: 10
+      minutos: 988
+    - competicao: Gauchão Feminino
+      time: Flamengo de São Pedro (RS)
+      jogos: 5
+      titular: 4
+      minutos: 350
+    - competicao: Copa do Brasil Feminina
+      time: Itacoatiara FC (AM)
+      jogos: 1
+      titular: 1
+      minutos: 90
 so_link: false
 rascunho: false
 exemplo: false

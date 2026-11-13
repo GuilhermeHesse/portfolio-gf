@@ -50,6 +50,23 @@ conquistas:
   - titulo: paulista sub17 -2023
   - titulo: "campeão do interior sub 20 "
 instagram: madu_duarte.12
+minutagem:
+  temporada: "2026"
+  minutos: 843
+  jogos: 10
+  titular: 9
+  atualizado: 2026-11-13
+  competicoes:
+    - competicao: Gauchão Feminino
+      time: Flamengo de São Pedro (RS)
+      jogos: 8
+      titular: 7
+      minutos: 663
+    - competicao: Mato-grossense Feminino
+      time: Ação SAF (MT)
+      jogos: 2
+      titular: 2
+      minutos: 180
 so_link: false
 rascunho: false
 exemplo: false

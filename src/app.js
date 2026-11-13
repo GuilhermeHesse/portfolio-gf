@@ -164,6 +164,18 @@
     });
   }
 
+  // Minutagem: o campinho abre a janela com os minutos por competição e time
+  const janelaMinutagem = document.querySelector('[data-minutagem-detalhe]');
+  const campinho = document.querySelector('[data-abrir-minutagem]');
+  if (janelaMinutagem && campinho && typeof janelaMinutagem.showModal === 'function') {
+    campinho.addEventListener('click', () => janelaMinutagem.showModal());
+    janelaMinutagem.querySelector('[data-fechar-minutagem]').addEventListener('click', () => janelaMinutagem.close());
+    // Clique fora da caixa (no fundo escurecido) fecha
+    janelaMinutagem.addEventListener('click', (e) => {
+      if (e.target === janelaMinutagem) janelaMinutagem.close();
+    });
+  }
+
   // Painel lateral (três pontinhos do topo): atalhos e área da equipe
   const painel = document.querySelector('[data-painel]');
   const fundoPainel = document.querySelector('[data-painel-fundo]');

@@ -21,6 +21,28 @@ galeria:
   - /fotos/s.jpg
   - /fotos/sem-titulo-12.jpg
   - /fotos/sd.jpg
+minutagem:
+  temporada: "2026"
+  minutos: 783
+  jogos: 14
+  titular: 11
+  atualizado: 2026-11-13
+  competicoes:
+    - competicao: Brasileiro Feminino Sub-17
+      time: Ação (MT)
+      jogos: 6
+      titular: 6
+      minutos: 420
+    - competicao: Mato-grossense Feminino
+      time: Ação (MT)
+      jogos: 5
+      titular: 4
+      minutos: 278
+    - competicao: Brasileiro Feminino Sub-20
+      time: Ação (MT)
+      jogos: 3
+      titular: 1
+      minutos: 85
 so_link: false
 rascunho: false
 exemplo: false

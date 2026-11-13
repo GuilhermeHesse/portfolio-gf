@@ -205,6 +205,56 @@ content:
             max: 12
           unique: true
 
+      # ------------------------------------------------ minutagem
+      - name: minutagem
+        label: Minutagem da temporada (campinho no perfil)
+        type: object
+        description: "Aparece como um mini campo ao lado de \"Baixar ficha em PDF\". Ao clicar, abre o detalhe por competição e time. Em branco = o campinho não aparece."
+        fields:
+          - name: temporada
+            label: Temporada
+            type: string
+            description: "Ex.: 2026"
+          - name: minutos
+            label: Minutos jogados (total)
+            type: number
+            description: Em branco = soma das competições abaixo.
+          - name: jogos
+            label: Jogos (total)
+            type: number
+            description: Em branco = soma das competições abaixo.
+          - name: titular
+            label: Jogos como titular (total, opcional)
+            type: number
+          - name: atualizado
+            label: Atualizado em
+            type: date
+          - name: competicoes
+            label: Por competição (aparece ao clicar no campinho)
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{competicao} · {time} · {minutos} min"
+            fields:
+              - name: competicao
+                label: Competição
+                type: string
+                description: "Ex.: Brasileiro Feminino A2"
+              - name: time
+                label: Time
+                type: string
+                description: "Ex.: Itacoatiara FC (AM)"
+              - name: jogos
+                label: Jogos
+                type: number
+              - name: titular
+                label: Como titular (opcional)
+                type: number
+              - name: minutos
+                label: Minutos
+                type: number
+
       # ------------------------------------------------ análise de desempenho
       - name: relatorios
         label: Análise de desempenho (relatórios em PDF)
