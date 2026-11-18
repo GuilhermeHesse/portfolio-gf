@@ -1,5 +1,5 @@
 ---
-nome: Neves
+nome: Marina Neves
 nome_completo: Marina Neves de Souza Silva
 foto: /fotos/marina-neves-retrato.jpg
 categoria: Feminino
@@ -15,12 +15,31 @@ nacionalidade: Brasileira
 clube_atual: Cruzeiro
 situacao: Contrato até 12/2026
 galeria:
-  - /fotos/marina-neves-jogo-1.jpg
+  - /fotos/marina-neves-treino-2.jpg
   - /fotos/marina-neves-treino-3.jpg
+  - /fotos/marina-neves-jogo-1.jpg
+  - /fotos/marina-neves-jogo-2.jpg
   - /fotos/marina-neves-jogo-3.jpg
   - /fotos/marina-neves-treino-1.jpg
-  - /fotos/marina-neves-jogo-2.jpg
-  - /fotos/marina-neves-treino-2.jpg
+minutagem:
+  temporada: "2026"
+  atualizado: 2026-11-18
+  competicoes:
+    - competicao: Mineiro Feminino Sub-20
+      time: Cruzeiro (MG)
+      jogos: 1
+      titular: 1
+      minutos: 90
+    - competicao: Mineiro Feminino Sub-17
+      time: Cruzeiro (MG)
+      jogos: 3
+      titular: 0
+      minutos: 66
+    - competicao: Brasileiro Feminino Sub-17
+      time: Cruzeiro (MG)
+      jogos: 1
+      titular: 0
+      minutos: 25
 trajetoria:
   - periodo: 2026 – atual
     clube: Cruzeiro
@@ -48,25 +67,6 @@ estatisticas:
   - rotulo: Assistências
     valor: "4"
     obs: Mineiro Sub-17 2025 · Betim
-minutagem:
-  temporada: "2026"
-  atualizado: 2026-11-18
-  competicoes:
-    - competicao: Mineiro Feminino Sub-20
-      time: Cruzeiro (MG)
-      jogos: 1
-      titular: 1
-      minutos: 90
-    - competicao: Mineiro Feminino Sub-17
-      time: Cruzeiro (MG)
-      jogos: 3
-      titular: 0
-      minutos: 66
-    - competicao: Brasileiro Feminino Sub-17
-      time: Cruzeiro (MG)
-      jogos: 1
-      titular: 0
-      minutos: 25
 so_link: true
 rascunho: false
 exemplo: false
