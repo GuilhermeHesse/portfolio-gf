@@ -1114,6 +1114,44 @@ select {
   background: var(--fundo);
 }
 
+/* Minutagem de mais de um ano: um bloco por ano, com o ano em dourado e o total do ano à direita */
+.minutagem-detalhe__grupo {
+  margin-top: 22px;
+}
+
+.minutagem-detalhe__grupo + .minutagem-detalhe__grupo {
+  margin-top: 26px;
+}
+
+.minutagem-detalhe__grupo .minutagem-detalhe__lista {
+  margin-top: 10px;
+}
+
+.minutagem-detalhe__ano {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--linha);
+  font-weight: 400;
+}
+
+.minutagem-detalhe__ano > span:first-child {
+  color: var(--ouro-claro);
+  font-family: var(--serifa);
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.minutagem-detalhe__ano > span:last-child {
+  color: var(--tinta-suave);
+  font-family: var(--sans);
+  font-size: 12px;
+}
+
 .minutagem-detalhe__linha {
   display: flex;
   align-items: flex-start;

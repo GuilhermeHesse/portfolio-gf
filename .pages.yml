@@ -214,7 +214,7 @@ content:
           - name: temporada
             label: Temporada
             type: string
-            description: "Ex.: 2026"
+            description: "Ex.: 2026 ou 2025–2026 (quando juntar dois anos)"
           - name: minutos
             label: Minutos jogados (total)
             type: number
@@ -237,6 +237,10 @@ content:
                 collapsed: true
                 summary: "{competicao} · {time} · {minutos} min"
             fields:
+              - name: ano
+                label: Ano (opcional)
+                type: string
+                description: "Só quando a minutagem juntar mais de um ano (ex.: 2025 e 2026): aí a janela separa por ano, cada um com o seu total. Preencha em todas as competições."
               - name: competicao
                 label: Competição
                 type: string

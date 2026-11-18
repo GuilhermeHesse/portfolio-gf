@@ -254,7 +254,8 @@ function caminhoImagem(valor, dir, rotulo, tipo = 'imagem') {
 
 // Minutagem da temporada (campinho ao lado de "Baixar ficha em PDF"); só aparece com os minutos preenchidos.
 // "competicoes" (competição, time, jogos, titular, minutos) é o detalhe que abre ao clicar no campinho;
-// totais em branco são a soma das competições.
+// totais em branco são a soma das competições. Com o "ano" preenchido em cada competição e mais de um ano
+// (ex.: 2025 e 2026), a janela separa por ano, cada um com o seu total.
 function lerMinutagem(valor, rotulo) {
   if (!valor || typeof valor !== 'object') return null;
   const numero = (v) => {
@@ -263,21 +264,35 @@ function lerMinutagem(valor, rotulo) {
   };
   const competicoes = lista(valor.competicoes)
     .filter((c) => typeof c === 'object')
-    .map((c) => ({ competicao: texto(c.competicao), time: texto(c.time), jogos: numero(c.jogos), titular: numero(c.titular), minutos: numero(c.minutos) }))
+    .map((c) => ({ ano: texto(c.ano), competicao: texto(c.competicao), time: texto(c.time), jogos: numero(c.jogos), titular: numero(c.titular), minutos: numero(c.minutos) }))
     .filter((c) => c.competicao && c.minutos);
-  const soma = (campo) => competicoes.reduce((s, c) => s + (c[campo] || 0), 0) || null;
+  const somar = (itens, campo) => itens.reduce((s, c) => s + (c[campo] || 0), 0) || null;
+  const soma = (campo) => somar(competicoes, campo);
   const minutos = numero(valor.minutos) || soma('minutos');
   if (!minutos) return null;
   if (competicoes.length && soma('minutos') !== minutos) {
     aviso(`${rotulo}: a minutagem total (${minutos}) não bate com a soma das competições (${soma('minutos')}).`);
   }
+  // separação por ano: só quando todas as competições têm o ano e há mais de um ano diferente
+  const anos = [...new Set(competicoes.map((c) => c.ano))].sort((x, y) => y.localeCompare(x));
+  const separarPorAno = anos.length > 1 && !anos.includes('');
+  if (anos.length > 1 && !separarPorAno) {
+    aviso(`${rotulo}: algumas competições da minutagem estão sem o ano; a janela não vai separar por ano.`);
+  }
+  const porAno = separarPorAno
+    ? anos.map((ano) => {
+        const itens = competicoes.filter((c) => c.ano === ano);
+        return { ano, competicoes: itens, minutos: somar(itens, 'minutos'), jogos: somar(itens, 'jogos'), titular: somar(itens, 'titular') };
+      })
+    : null;
   return {
-    temporada: texto(valor.temporada) || String(HOJE.getFullYear()),
+    temporada: texto(valor.temporada) || (separarPorAno ? `${anos.at(-1)}–${anos[0]}` : anos[0]) || String(HOJE.getFullYear()),
     minutos,
     jogos: numero(valor.jogos) || soma('jogos'),
     titular: numero(valor.titular) || soma('titular'),
     atualizado: lerData(texto(valor.atualizado), rotulo),
     competicoes,
+    porAno,
   };
 }
 
@@ -711,7 +726,7 @@ function campinhoMinutagem(a, idioma) {
       </${tag}>`;
 }
 
-// Janela com a minutagem por competição e time (aberta pelo campinho)
+// Janela com a minutagem por competição e time (aberta pelo campinho); com mais de um ano, separada por ano
 function detalheMinutagem(a, idioma) {
   const m = a.minutagem;
   if (!m || !m.competicoes.length) return '';
@@ -720,14 +735,8 @@ function detalheMinutagem(a, idioma) {
   const formato = new Intl.NumberFormat(UI[idioma].htmlLang, { useGrouping: 'always' });
   const maior = Math.max(...m.competicoes.map((c) => c.minutos));
   const atualizado = m.atualizado ? t.minutagemAtualizada(formatarData(m.atualizado, idioma)) : '';
-  return `
-<dialog class="minutagem-detalhe" data-minutagem-detalhe aria-labelledby="titulo-minutagem">
-  <div class="minutagem-detalhe__caixa">
-    <button type="button" class="minutagem-detalhe__fechar" data-fechar-minutagem aria-label="${esc(t.fechar)}">${icone.fechar}</button>
-    <p class="sobretitulo">${esc(t.minutagem(m.temporada))}</p>
-    <h2 id="titulo-minutagem" class="minutagem-detalhe__titulo">${esc(a.nome)}</h2>
-    <ul class="minutagem-detalhe__lista">
-      ${m.competicoes
+  const listaCompeticoes = (competicoes) => `<ul class="minutagem-detalhe__lista">
+      ${competicoes
         .map(
           (c) => `<li>
         <div class="minutagem-detalhe__linha">
@@ -740,9 +749,29 @@ function detalheMinutagem(a, idioma) {
       </li>`,
         )
         .join('\n      ')}
-    </ul>
+    </ul>`;
+  const conteudo = m.porAno
+    ? m.porAno
+        .map(
+          (g) => `<section class="minutagem-detalhe__grupo">
+      <h3 class="minutagem-detalhe__ano"><span>${esc(g.ano)}</span><span>${[`${formato.format(g.minutos)} min`, t.minutagemJogos(g.jogos, g.titular)]
+        .filter(Boolean)
+        .map(esc)
+        .join(' · ')}</span></h3>
+    ${listaCompeticoes(g.competicoes)}
+    </section>`,
+        )
+        .join('\n    ')
+    : listaCompeticoes(m.competicoes);
+  return `
+<dialog class="minutagem-detalhe" data-minutagem-detalhe aria-labelledby="titulo-minutagem">
+  <div class="minutagem-detalhe__caixa">
+    <button type="button" class="minutagem-detalhe__fechar" data-fechar-minutagem aria-label="${esc(t.fechar)}">${icone.fechar}</button>
+    <p class="sobretitulo">${esc(t.minutagem(m.temporada))}</p>
+    <h2 id="titulo-minutagem" class="minutagem-detalhe__titulo">${esc(a.nome)}</h2>
+    ${conteudo}
     <div class="minutagem-detalhe__total">
-      <span>${esc(t.minutagemTotal)}</span>
+      <span>${esc(m.porAno ? t.minutagemTotalPeriodo(m.temporada) : t.minutagemTotal)}</span>
       <div class="minutagem-detalhe__num"><strong>${formato.format(m.minutos)}<small>min</small></strong><span>${esc(t.minutagemJogos(m.jogos, m.titular))}</span></div>
     </div>
     ${atualizado ? `<p class="minutagem-detalhe__nota">${esc(atualizado)}</p>` : ''}

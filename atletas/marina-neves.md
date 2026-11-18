@@ -22,24 +22,33 @@ galeria:
   - /fotos/marina-neves-jogo-3.jpg
   - /fotos/marina-neves-treino-1.jpg
 minutagem:
-  temporada: "2026"
+  temporada: 2025–2026
   atualizado: 2026-11-18
   competicoes:
-    - competicao: Mineiro Feminino Sub-20
+    - ano: "2026"
+      competicao: Mineiro Feminino Sub-20
       time: Cruzeiro (MG)
       jogos: 1
       titular: 1
       minutos: 90
-    - competicao: Mineiro Feminino Sub-17
+    - ano: "2026"
+      competicao: Mineiro Feminino Sub-17
       time: Cruzeiro (MG)
       jogos: 3
       titular: 0
       minutos: 66
-    - competicao: Brasileiro Feminino Sub-17
+    - ano: "2026"
+      competicao: Brasileiro Feminino Sub-17
       time: Cruzeiro (MG)
       jogos: 1
       titular: 0
       minutos: 25
+    - ano: "2025"
+      competicao: Mineiro Feminino Sub-17
+      time: Betim Futebol (MG)
+      jogos: 3
+      titular: 2
+      minutos: 98
 trajetoria:
   - periodo: 2026 – atual
     clube: Cruzeiro
