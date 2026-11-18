@@ -14,6 +14,7 @@ naturalidade: Belo Horizonte – MG
 nacionalidade: Brasileira
 clube_atual: Cruzeiro
 situacao: Contrato até 12/2026
+video: https://youtu.be/wvXRNAmWeMk
 galeria:
   - /fotos/marina-neves-treino-2.jpg
   - /fotos/marina-neves-treino-3.jpg
